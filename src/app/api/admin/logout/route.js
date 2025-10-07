@@ -9,7 +9,7 @@ export async function POST() {
     );
 
     // Clear the session cookie
-    clearSessionCookie();
+    await clearSessionCookie();
 
     return response;
 

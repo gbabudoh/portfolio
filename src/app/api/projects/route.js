@@ -15,7 +15,7 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { title, description, long_description, image_url, live_url, github_url, technologies, category, featured } = body;
+    const { title, description, long_description, image_url, image_public_id, live_url, github_url, technologies, category, featured } = body;
     
     // Validate required fields
     if (!title || !description || !category) {
@@ -24,8 +24,8 @@ export async function POST(request) {
     
     const db = getDatabase();
     const result = db.prepare(
-      'INSERT INTO projects (title, description, long_description, image_url, live_url, github_url, technologies, category, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(title, description, long_description || '', image_url || '', live_url || '', github_url || '', technologies || '', category, featured ? 1 : 0);
+      'INSERT INTO projects (title, description, long_description, image_url, image_public_id, live_url, github_url, technologies, category, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(title, description, long_description || '', image_url || '', image_public_id || '', live_url || '', github_url || '', technologies || '', category, featured ? 1 : 0);
     
     return Response.json({ success: true, id: result.lastInsertRowid });
   } catch (error) {

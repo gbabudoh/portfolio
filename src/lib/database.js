@@ -5,20 +5,29 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Database path - store in project root
-const dbPath = path.join(process.cwd(), 'portfolio.db');
+// Database path - use env override, fallback to project root sqlite file
+const dbPath = process.env.DATABASE_URL
+  ? path.isAbsolute(process.env.DATABASE_URL)
+    ? process.env.DATABASE_URL
+    : path.join(process.cwd(), process.env.DATABASE_URL)
+  : path.join(process.cwd(), 'portfolio.db');
 
 let db;
 
 export function getDatabase() {
   if (!db) {
-    db = new Database(dbPath);
-    
-    // Enable foreign keys
-    db.pragma('foreign_keys = ON');
-    
-    // Create tables if they don't exist
-    createTables();
+    try {
+      db = new Database(dbPath);
+      
+      // Enable foreign keys
+      db.pragma('foreign_keys = ON');
+      
+      // Create tables if they don't exist
+      createTables();
+    } catch (error) {
+      console.error('Database initialization error:', error);
+      throw error;
+    }
   }
   return db;
 }
@@ -45,6 +54,7 @@ function createTables() {
       description TEXT NOT NULL,
       long_description TEXT,
       image_url TEXT,
+      image_public_id TEXT,
       live_url TEXT,
       github_url TEXT,
       technologies TEXT,
@@ -140,8 +150,10 @@ function createTables() {
     )
   `);
 
-  // Insert sample data if tables are empty
-  insertSampleData();
+  // Insert sample data only in non-production environments
+  if (process.env.NODE_ENV !== 'production') {
+    insertSampleData();
+  }
 }
 
 function insertSampleData() {
@@ -202,6 +214,7 @@ function insertSampleData() {
         description: 'Community organization website with custom admin panel',
         long_description: 'Built a comprehensive community platform for Ghanaian Muslim Union UK using Vue.js frontend, PHP backend, and SQLite database. Features include custom admin panel for content management, event management, and team profiles.',
         image_url: '/api/placeholder/600/400',
+        image_public_id: 'portfolio/projects/gmuuk-community',
         live_url: 'https://gmuuk.org',
         github_url: '',
         technologies: 'Vue.js, PHP, SQLite, Custom Admin Panel',
@@ -213,6 +226,7 @@ function insertSampleData() {
         description: 'Enterprise business platform with complete infrastructure',
         long_description: 'Migrated from WordPress to React.js with headless WordPress backend, integrated ProjectSend CRM, and set up complete server infrastructure from scratch including VPS, Virtualmin, Ubuntu, email systems, and security.',
         image_url: '/api/placeholder/600/400',
+        image_public_id: 'portfolio/projects/egobas-business',
         live_url: 'https://egobas.com',
         github_url: '',
         technologies: 'React.js, Headless WordPress, MySQL, VPS Infrastructure',
@@ -224,6 +238,7 @@ function insertSampleData() {
         description: 'Cost-effective business solution with AI-generated content',
         long_description: 'Built business consortium platform using React.js, WordPress, and Pure CSS. Integrated Google Analytics and Matomo analytics, implemented SEO structure, and used AI tools for content generation.',
         image_url: '/api/placeholder/600/400',
+        image_public_id: 'portfolio/projects/niger-delta-consortium',
         live_url: 'https://nigerdeltaconsortium.com',
         github_url: '',
         technologies: 'React.js, WordPress, MySQL, Pure CSS, Analytics',
@@ -235,6 +250,7 @@ function insertSampleData() {
         description: 'Cross-platform mobile game using React Native',
         long_description: 'Developed engaging mobile game using React Native and Expo. Features real-time physics, collision detection, and cross-platform compatibility. Ready for app store deployment.',
         image_url: '/api/placeholder/600/400',
+        image_public_id: 'portfolio/projects/block-breaker-game',
         live_url: 'https://download-blockbreaker.netlify.app/',
         github_url: '',
         technologies: 'React Native, Expo, Game Physics, Cross-platform',
@@ -246,6 +262,7 @@ function insertSampleData() {
         description: 'Next.js e-commerce platform with Stripe integration',
         long_description: 'Built complete e-commerce solution using Next.js with Stripe payment processing. Features shopping cart, secure checkout, and responsive design for tech products.',
         image_url: '/api/placeholder/600/400',
+        image_public_id: 'portfolio/projects/mycheckout-ecommerce',
         live_url: 'https://mycheckout.netlify.app/',
         github_url: '',
         technologies: 'Next.js, Stripe, E-commerce, Responsive Design',
@@ -257,6 +274,7 @@ function insertSampleData() {
         description: 'Custom affiliate marketing platform for beauty products',
         long_description: 'Built specialized affiliate e-commerce platform allowing clients to manage product listings, upload images, and integrate affiliate links. Custom admin system for non-technical users.',
         image_url: '/api/placeholder/600/400',
+        image_public_id: 'portfolio/projects/glowup-shop',
         live_url: 'https://glowupshop.netlify.app/',
         github_url: '',
         technologies: 'Next.js, Affiliate Marketing, Custom Admin, Stripe',
@@ -265,8 +283,8 @@ function insertSampleData() {
       }
     ];
 
-    const insertProject = db.prepare('INSERT INTO projects (title, description, long_description, image_url, live_url, github_url, technologies, category, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-    projects.forEach(project => insertProject.run(project.title, project.description, project.long_description, project.image_url, project.live_url, project.github_url, project.technologies, project.category, project.featured ? 1 : 0));
+    const insertProject = db.prepare('INSERT INTO projects (title, description, long_description, image_url, image_public_id, live_url, github_url, technologies, category, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    projects.forEach(project => insertProject.run(project.title, project.description, project.long_description, project.image_url, project.image_public_id || '', project.live_url, project.github_url, project.technologies, project.category, project.featured ? 1 : 0));
   }
 
   // Check if experience table has data

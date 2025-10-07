@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mail, Eye, Trash2, CheckCircle, Clock } from 'lucide-react';
+import { Mail, Eye, Trash2, CheckCircle, Clock, X, RefreshCw } from 'lucide-react';
 
 export default function AdminMessages() {
   const [messages, setMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     fetchMessages();
@@ -16,14 +19,39 @@ export default function AdminMessages() {
       const response = await fetch('/api/contact');
       const data = await response.json();
       if (data.success) {
-        setMessages(data.data);
+        // Convert read field from 0/1 to boolean
+        const messagesWithBooleanRead = data.data.map(msg => ({
+          ...msg,
+          read: Boolean(msg.read)
+        }));
+        setMessages(messagesWithBooleanRead);
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
   };
 
+  const refreshMessages = async () => {
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    
+    try {
+      await fetchMessages();
+      setSuccess('Messages refreshed successfully');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
+      setError('Failed to refresh messages');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const markAsRead = async (id) => {
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    
     try {
       const response = await fetch(`/api/contact/${id}`, {
         method: 'PUT',
@@ -33,11 +61,35 @@ export default function AdminMessages() {
         body: JSON.stringify({ read: true }),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // Update the local state immediately for better UX
+        setMessages(prevMessages => 
+          prevMessages.map(msg => 
+            msg.id === id ? { ...msg, read: true } : msg
+          )
+        );
+        
+        // Update selected message if it's the one being marked as read
+        if (selectedMessage?.id === id) {
+          setSelectedMessage(prev => ({ ...prev, read: true }));
+        }
+        
+        setSuccess('Message marked as read');
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(data.error || 'Failed to mark message as read');
+        // Fallback to refetch if local update fails
         fetchMessages();
       }
     } catch (error) {
       console.error('Error marking message as read:', error);
+      setError('Network error. Please try again.');
+      // Fallback to refetch on error
+      fetchMessages();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,16 +129,45 @@ export default function AdminMessages() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Contact Messages
-        </h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-2">
-          Manage contact form submissions from your portfolio
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Contact Messages
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">
+              Manage contact form submissions from your portfolio
+            </p>
+          </div>
+          
+          {/* Refresh Button */}
+          <button
+            onClick={refreshMessages}
+            disabled={loading}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
+          </button>
+        </div>
+        
         {unreadCount > 0 && (
           <div className="mt-4 inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
             <Mail className="w-4 h-4 mr-2" />
             {unreadCount} unread message{unreadCount !== 1 ? 's' : ''}
+          </div>
+        )}
+        
+        {/* Success/Error Messages */}
+        {success && (
+          <div className="mt-4 inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg text-sm font-medium">
+            <CheckCircle className="w-4 h-4 mr-2" />
+            {success}
+          </div>
+        )}
+        {error && (
+          <div className="mt-4 inline-flex items-center px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-lg text-sm font-medium">
+            <X className="w-4 h-4 mr-2" />
+            {error}
           </div>
         )}
       </div>
@@ -96,9 +177,19 @@ export default function AdminMessages() {
         <div className="lg:col-span-1">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                All Messages ({messages.length})
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  All Messages ({messages.length})
+                </h3>
+                <button
+                  onClick={refreshMessages}
+                  disabled={loading}
+                  className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Refresh messages"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
             </div>
             
             <div className="max-h-96 overflow-y-auto">
@@ -144,7 +235,8 @@ export default function AdminMessages() {
                                 e.stopPropagation();
                                 markAsRead(message.id);
                               }}
-                              className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                              disabled={loading}
+                              className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Mark as read"
                             >
                               <CheckCircle className="w-4 h-4" />
@@ -249,10 +341,11 @@ export default function AdminMessages() {
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button
                       onClick={() => markAsRead(selectedMessage.id)}
-                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+                      disabled={loading}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      <span>Mark as Read</span>
+                      <span>{loading ? 'Marking...' : 'Mark as Read'}</span>
                     </button>
                   </div>
                 )}

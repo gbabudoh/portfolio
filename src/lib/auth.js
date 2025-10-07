@@ -31,8 +31,8 @@ export function createSession() {
   };
 }
 
-export function getSession() {
-  const cookieStore = cookies();
+export async function getSession() {
+  const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('admin_session');
   
   if (!sessionCookie) {
@@ -53,8 +53,8 @@ export function getSession() {
   }
 }
 
-export function requireAuth() {
-  const session = getSession();
+export async function requireAuth() {
+  const session = await getSession();
   
   if (!session) {
     redirect('/admin/login');
@@ -63,8 +63,8 @@ export function requireAuth() {
   return session;
 }
 
-export function setSessionCookie(session) {
-  const cookieStore = cookies();
+export async function setSessionCookie(session) {
+  const cookieStore = await cookies();
   cookieStore.set('admin_session', JSON.stringify(session), {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -74,7 +74,7 @@ export function setSessionCookie(session) {
   });
 }
 
-export function clearSessionCookie() {
-  const cookieStore = cookies();
+export async function clearSessionCookie() {
+  const cookieStore = await cookies();
   cookieStore.delete('admin_session');
 }

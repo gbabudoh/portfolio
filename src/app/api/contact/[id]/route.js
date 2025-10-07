@@ -3,13 +3,32 @@ import { getDatabase } from '@/lib/database';
 export async function PUT(request, { params }) {
   try {
     const { id } = params;
-    const body = await request.json();
+    
+    if (!id) {
+      return Response.json({ success: false, error: 'Message ID is required' }, { status: 400 });
+    }
+    
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      return Response.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
+    }
+    
     const { read } = body;
+    
+    if (typeof read !== 'boolean') {
+      return Response.json({ success: false, error: 'Read field must be a boolean' }, { status: 400 });
+    }
+    
+    // Convert boolean to integer for SQLite
+    const readValue = read ? 1 : 0;
     
     const db = getDatabase();
     const result = db.prepare(
       'UPDATE contact_messages SET read = ? WHERE id = ?'
-    ).run(read, id);
+    ).run(readValue, parseInt(id));
     
     if (result.changes > 0) {
       return Response.json({ success: true, message: 'Message updated successfully' });
@@ -18,7 +37,7 @@ export async function PUT(request, { params }) {
     }
   } catch (error) {
     console.error('Error updating message:', error);
-    return Response.json({ success: false, error: 'Failed to update message' }, { status: 500 });
+    return Response.json({ success: false, error: 'Failed to update message: ' + error.message }, { status: 500 });
   }
 }
 

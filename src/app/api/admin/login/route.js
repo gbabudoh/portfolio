@@ -34,7 +34,7 @@ export async function POST(request) {
     );
 
     // Set the session cookie
-    setSessionCookie(session);
+    await setSessionCookie(session);
 
     return response;
 

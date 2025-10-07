@@ -1,9 +1,9 @@
 import { requireAuth } from '@/lib/auth';
 import AdminNavigation from '@/components/admin/AdminNavigation';
 
-export default function ProtectedAdminLayout({ children }) {
+export default async function ProtectedAdminLayout({ children }) {
   // This will redirect to /admin/login if not authenticated
-  const session = requireAuth();
+  const session = await requireAuth();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
