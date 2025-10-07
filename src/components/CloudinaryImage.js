@@ -11,6 +11,7 @@ export default function CloudinaryImage({
   className = '',
   priority = false,
   placeholder = 'blur',
+  responsive = false,
   ...props 
 }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -20,7 +21,7 @@ export default function CloudinaryImage({
     return (
       <div 
         className={`bg-gray-200 dark:bg-gray-700 flex items-center justify-center ${className}`}
-        style={{ width, height }}
+        style={responsive ? {} : { width, height }}
       >
         <span className="text-gray-400 dark:text-gray-500">No image</span>
       </div>
@@ -31,7 +32,7 @@ export default function CloudinaryImage({
     return (
       <div 
         className={`bg-gray-200 dark:bg-gray-700 flex items-center justify-center ${className}`}
-        style={{ width, height }}
+        style={responsive ? {} : { width, height }}
       >
         <span className="text-gray-400 dark:text-gray-500">Failed to load</span>
       </div>
@@ -58,6 +59,35 @@ export default function CloudinaryImage({
       return `${url} ${size}w`;
     })
     .join(', ');
+
+  if (responsive) {
+    return (
+      <>
+        {isLoading && (
+          <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-gray-300 dark:border-gray-600 border-t-blue-600 rounded-full animate-spin"></div>
+          </div>
+        )}
+        
+        <img
+          src={imageUrl}
+          srcSet={srcSet}
+          alt={alt}
+          className={`transition-opacity duration-300 ${
+            isLoading ? 'opacity-0' : 'opacity-100'
+          } ${className}`}
+          onLoad={() => setIsLoading(false)}
+          onError={() => {
+            setIsLoading(false);
+            setHasError(true);
+          }}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          {...props}
+        />
+      </>
+    );
+  }
 
   return (
     <div className={`relative overflow-hidden ${className}`}>

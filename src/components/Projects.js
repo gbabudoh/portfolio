@@ -41,7 +41,7 @@ export default function Projects() {
   };
 
   return (
-    <section id="projects" className="py-20 bg-gray-50 dark:bg-gray-800">
+    <section id="projects" className="py-20 bg-gray-50 dark:bg-gray-800" aria-labelledby="projects-heading">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -50,7 +50,7 @@ export default function Projects() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 id="projects-heading" className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Featured Projects
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
@@ -90,23 +90,18 @@ export default function Projects() {
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {filteredProjects.map((project, index) => (
-            <motion.div
+            <article
               key={project.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
               className="bg-white dark:bg-gray-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             >
               {/* Project Image */}
-              <div className="relative h-48 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 overflow-hidden">
+              <div className="relative aspect-video bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 overflow-hidden">
                 {project.image_url ? (
-                  <CloudinaryImage
-                    publicId={project.image_public_id}
-                    alt={project.title}
-                    width={400}
-                    height={192}
-                    className="w-full h-full object-cover"
+                  <img
+                    src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/w_400,h_225,c_fill,g_auto,q_auto,f_auto/${project.image_public_id}`}
+                    alt={`${project.title} - ${project.description} - Built with ${project.technologies}`}
+                    className="w-full h-full object-cover object-center"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -170,7 +165,7 @@ export default function Projects() {
                   )}
                 </div>
               </div>
-            </motion.div>
+            </article>
           ))}
         </motion.div>
 
@@ -225,13 +220,12 @@ export default function Projects() {
               <div className="space-y-6">
                 {/* Project Image */}
                 {selectedProject.image_url && (
-                  <div className="w-full h-64 rounded-lg overflow-hidden">
-                    <CloudinaryImage
-                      publicId={selectedProject.image_public_id}
-                      alt={selectedProject.title}
-                      width={800}
-                      height={256}
-                      className="w-full h-full object-cover"
+                  <div className="w-full aspect-video rounded-lg overflow-hidden">
+                    <img
+                      src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/w_800,h_450,c_fill,g_auto,q_auto,f_auto/${selectedProject.image_public_id}`}
+                      alt={`${selectedProject.title} - ${selectedProject.description} - Built with ${selectedProject.technologies}`}
+                      className="w-full h-full object-cover object-center"
+                      loading="lazy"
                     />
                   </div>
                 )}
