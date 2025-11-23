@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Code, Database, Smartphone, Palette, Brain, Server, FileText, Globe, Terminal } from 'lucide-react';
+import { Code, Database, Smartphone, Palette, Brain, Server, FileText, Globe, Terminal, Layout, Shield, TestTube, Zap, Cloud, MessageSquare, Lock, GitBranch, Gauge } from 'lucide-react';
 
 export default function Skills() {
   const [skills, setSkills] = useState([]);
@@ -25,7 +25,7 @@ export default function Skills() {
     }
   };
 
-  const categories = ['All', 'Languages', 'Frontend', 'Backend', 'Database', 'Mobile', 'Styling', 'Specialized'];
+  const categories = ['All', 'Ideation & Design', 'Languages', 'Frontend', 'Styling', 'Mobile', 'Backend', 'Database', 'APIs & Communication', 'Infrastructure (DevOps)', 'Security', 'Testing (QA)', 'Version Control & Collaboration', 'AI & LLM Engineering', 'Development Environment & AI Workflow', 'Performance & SEO Optimization', 'Specialised'];
   
   const filteredSkills = activeCategory === 'All' 
     ? skills 
@@ -33,13 +33,22 @@ export default function Skills() {
 
   const getCategoryIcon = (category) => {
     switch (category) {
+      case 'Ideation & Design': return Layout;
       case 'Languages': return Code;
       case 'Frontend': return Code;
+      case 'Styling': return Palette;
+      case 'Mobile': return Smartphone;
       case 'Backend': return Server;
       case 'Database': return Database;
-      case 'Mobile': return Smartphone;
-      case 'Styling': return Palette;
-      case 'Specialized': return Brain;
+      case 'APIs & Communication': return MessageSquare;
+      case 'Infrastructure (DevOps)': return Cloud;
+      case 'Security': return Shield;
+      case 'Testing (QA)': return TestTube;
+      case 'Version Control & Collaboration': return GitBranch;
+      case 'AI & LLM Engineering': return Brain;
+      case 'Development Environment & AI Workflow': return Zap;
+      case 'Performance & SEO Optimization': return Gauge;
+      case 'Specialised': return Brain;
       default: return Code;
     }
   };
@@ -74,10 +83,10 @@ export default function Skills() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Technical Skills
+            The Technical Stack
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            My expertise spans across multiple technologies and platforms, enabling me to deliver comprehensive solutions for any project.
+            A modern, production-grade toolkit designed for scalability. I leverage best-in-class technologies to architect secure, high-velocity ecosystems from the database to the edge.
           </p>
         </motion.div>
 
@@ -119,7 +128,7 @@ export default function Skills() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              className="bg-white dark:bg-gray-800 p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-200 dark:border-gray-700 shadow-sm"
             >
                               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
@@ -176,22 +185,11 @@ export default function Skills() {
         >
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-8 rounded-2xl">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              AI-Enhanced Development Workflow
+              High-Velocity AI Workflow
             </h3>
-            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
-              I leverage cutting-edge AI tools including Cursor, Windsurf, Kiro, ChatGPT, Sora, Google ImageFX, 
-              Claude Code, and Gemini CLI to accelerate development while maintaining code quality and creativity.
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Orchestrating a suite of AI-native IDEs and agentic CLIs to accelerate the engineering lifecycle. I use intelligent automation to reduce boilerplate, fast-track debugging, and deliver production-grade code 50% faster.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-              <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full">Cursor AI</span>
-              <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full">Windsurf</span>
-              <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full">Kiro</span>
-              <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full">ChatGPT</span>
-              <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full">Sora</span>
-              <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full">Google ImageFX</span>
-              <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full">Claude Code</span>
-              <span className="px-3 py-1 bg-white dark:bg-gray-800 rounded-full">Gemini CLI</span>
-            </div>
           </div>
         </motion.div>
       </div>

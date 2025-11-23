@@ -7,8 +7,8 @@ export default function ProjectCounter({
   showFeatured = false, 
   showCategories = false, 
   className = '',
-  prefix = 'Proven track record with ',
-  suffix = '+ production projects',
+  prefix = '',
+  suffix = '+',
   animate = true 
 }) {
   const [actualCount, setActualCount] = useState(0);

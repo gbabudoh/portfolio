@@ -20,11 +20,12 @@ export default function AdminProjects() {
     live_url: '',
     github_url: '',
     technologies: '',
+    technical_skills: '',
     category: '',
     featured: false
   });
 
-  const categories = ['Mobile app', 'Web app', 'Business site', 'e-commerce', 'Ideation'];
+  const categories = ['Marketing & Content Platforms', 'SaaS & Productivity', 'Commerce & Marketplaces', 'AI & Data Intelligence', 'Interactive & Media', 'Mobile Applications', 'Design & Strategy Case Studies'];
 
   useEffect(() => {
     fetchProjects();
@@ -68,6 +69,7 @@ export default function AdminProjects() {
           live_url: '',
           github_url: '',
           technologies: '',
+          technical_skills: '',
           category: '',
           featured: false
         });
@@ -97,6 +99,7 @@ export default function AdminProjects() {
       live_url: project.live_url,
       github_url: project.github_url,
       technologies: project.technologies,
+      technical_skills: project.technical_skills || '',
       category: project.category,
       featured: project.featured
     });
@@ -123,6 +126,7 @@ export default function AdminProjects() {
           live_url: '',
           github_url: '',
           technologies: '',
+          technical_skills: '',
           category: '',
           featured: false
         });
@@ -158,6 +162,7 @@ export default function AdminProjects() {
       live_url: '',
       github_url: '',
       technologies: '',
+      technical_skills: '',
       category: '',
       featured: false
     });
@@ -303,6 +308,19 @@ export default function AdminProjects() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="React.js, Node.js, MongoDB"
                 />
+                
+                <div className="mt-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Technical Skills
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.technical_skills}
+                    onChange={(e) => setFormData({ ...formData, technical_skills: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="TypeScript, React, Node.js"
+                  />
+                </div>
               </div>
             </div>
 

@@ -7,10 +7,12 @@ import ProjectCounter from './ProjectCounter';
 
 export default function About() {
   const [aboutContent, setAboutContent] = useState({});
+  const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchAboutContent();
+    fetchStats();
   }, []);
 
   const fetchAboutContent = async () => {
@@ -33,41 +35,67 @@ export default function About() {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/stats');
+      const result = await response.json();
+      
+      if (result.success) {
+        setStats(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  const getColorClass = (color) => {
+    const colorMap = {
+      blue: 'text-blue-600 dark:text-blue-400',
+      purple: 'text-purple-600 dark:text-purple-400',
+      green: 'text-green-600 dark:text-green-400',
+      orange: 'text-orange-600 dark:text-orange-400',
+      red: 'text-red-600 dark:text-red-400',
+      pink: 'text-pink-600 dark:text-pink-400',
+      indigo: 'text-indigo-600 dark:text-indigo-400',
+    };
+    return colorMap[color] || colorMap.blue;
+  };
+
   const features = [
     {
       icon: Brain,
-      title: 'AI-Enhanced Development',
-      description: 'Leveraging cutting-edge AI tools like Cursor, Windsurf, and Kiro for 40-60% faster project delivery',
+      title: 'High-Velocity Engineering',
+      description: 'Utilising an AI-native development stack to accelerate feature delivery by 50% while maintaining strict code quality and architectural standards.',
       color: 'from-blue-500 to-blue-600'
     },
     {
       icon: Code,
-      title: 'Full-Stack Expertise',
-      description: 'Complete solutions from frontend to backend, including server infrastructure and DevOps',
+      title: 'End-to-End Architecture',
+      description: 'Architecting seamless, scalable ecosystems-bridging reactive frontends with robust backends and cloud-native infrastructure.',
       color: 'from-purple-500 to-purple-600'
     },
     {
       icon: Users,
-      title: 'Client-Focused',
-      description: 'Understanding business needs and delivering solutions that drive real value',
+      title: 'Strategic Product Engineering',
+      description: 'Translating complex business requirements into high-impact technical execution, ensuring every feature aligns with user needs and ROI.',
       color: 'from-green-500 to-green-600'
     },
     {
       icon: Globe,
-      title: 'Multi-Platform',
-      description: 'Web, mobile, and backend solutions across diverse industries and business models',
+      title: 'Unified Digital Ecosystems',
+      description: 'Delivering cohesive, high-performance experiences across Web and Mobile-powered by shared architecture and unified backend logic.',
       color: 'from-orange-500 to-orange-600'
     },
     {
       icon: Smartphone,
-      title: 'Mobile Development',
-      description: 'Cross-platform mobile apps using React Native and Expo',
+      title: 'Native-Grade Mobile Experiences',
+      description: 'Engineering fluid, high-performance iOS and Android applications using leading cross-platform frameworks (React Native, Flutter). I deliver seamless, native-quality user experiences with maximum code efficiency and reach.',
       color: 'from-pink-500 to-pink-600'
     },
     {
       icon: Zap,
-      title: 'Performance Focused',
-      description: 'Optimized solutions with modern technologies and best practices',
+      title: 'High-Performance Engineering',
+      description: 'Delivering sub-second load times and top-tier Core Web Vitals. I architect systems for maximum speed, SEO visibility, and scalable user retention.',
       color: 'from-indigo-500 to-indigo-600'
     }
   ];
@@ -89,7 +117,7 @@ export default function About() {
             {loading ? (
               <span className="animate-pulse">Loading...</span>
             ) : (
-              aboutContent.main_description?.content || "I'm a passionate full-stack developer and solution architect who combines technical expertise with AI-enhanced workflows to deliver exceptional results."
+              aboutContent.main_description?.content || "Full Stack Engineer leveraging intelligent automation to build robust Web, Mobile, and Commerce ecosystems faster and more reliably."
             )}
           </p>
         </motion.div>
@@ -136,29 +164,34 @@ export default function About() {
             viewport={{ once: true }}
             className="grid grid-cols-2 gap-6"
           >
-            <div className="text-center p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg">
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                <ProjectCounter 
-                  className="text-3xl font-bold text-blue-600 dark:text-blue-400"
-                  prefix=""
-                  suffix="+"
-                  animate={true}
-                />
-              </div>
-              <div className="text-gray-600 dark:text-gray-300">Production Projects</div>
-            </div>
-            <div className="text-center p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg">
-              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">4+</div>
-              <div className="text-gray-600 dark:text-gray-300">Years Experience</div>
-            </div>
-            <div className="text-center p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg">
-              <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">40-60%</div>
-              <div className="text-gray-600 dark:text-gray-300">Faster Delivery</div>
-            </div>
-            <div className="text-center p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg">
-              <div className="text-3xl font-bold text-orange-600 dark:text-orange-400 mb-2">100%</div>
-              <div className="text-gray-600 dark:text-gray-300">Client Satisfaction</div>
-            </div>
+            {stats.map((stat, index) => {
+              // Special handling for production_projects - use automatic counter
+              if (stat.key === 'production_projects') {
+                return (
+                  <div key={stat.id} className="text-center p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600">
+                    <div className={`text-3xl font-bold ${getColorClass(stat.color)} mb-2`}>
+                      <ProjectCounter 
+                        className={`text-3xl font-bold ${getColorClass(stat.color)}`}
+                        prefix=""
+                        suffix="+"
+                        animate={true}
+                      />
+                    </div>
+                    <div className="text-gray-600 dark:text-gray-300">{stat.label}</div>
+                  </div>
+                );
+              }
+              
+              // Regular stats
+              return (
+                <div key={stat.id} className="text-center p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600">
+                  <div className={`text-3xl font-bold ${getColorClass(stat.color)} mb-2`}>
+                    {stat.value}
+                  </div>
+                  <div className="text-gray-600 dark:text-gray-300">{stat.label}</div>
+                </div>
+              );
+            })}
           </motion.div>
         </div>
 

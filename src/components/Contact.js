@@ -83,10 +83,10 @@ export default function Contact() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Get In Touch
+            Let's Build Something Extraordinary
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Ready to start your next project? Let&apos;s discuss how I can help bring your ideas to life with modern, scalable, and AI-enhanced development solutions.
+            Ready to upgrade your digital infrastructure? I'm available to engineer modern, scalable solutions that deliver real business impact.
           </p>
         </motion.div>
 
@@ -142,27 +142,55 @@ export default function Contact() {
               viewport={{ once: true }}
               className="mt-12 p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl"
             >
-              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Why Choose Me?
               </h4>
-              <ul className="space-y-2 text-gray-600 dark:text-gray-300">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>AI-enhanced development for faster delivery</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Full-stack solutions from concept to deployment</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Proven track record with 6+ production projects</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Ongoing support and maintenance</span>
-                </li>
-              </ul>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h5 className="font-semibold text-gray-900 dark:text-white mb-1">
+                      Strategic Product Engineering
+                    </h5>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      I build with the business goal in mind, ensuring technical decisions align with user needs and market requirements.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h5 className="font-semibold text-gray-900 dark:text-white mb-1">
+                      Full-Stack Agility
+                    </h5>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Seamlessly moving between frontend polish, backend logic, and mobile ecosystems to deliver a cohesive product experience.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h5 className="font-semibold text-gray-900 dark:text-white mb-1">
+                      Performance-First Mindset
+                    </h5>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Prioritising Core Web Vitals, fast load times, and responsive mobile interfaces to ensure maximum user retention.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h5 className="font-semibold text-gray-900 dark:text-white mb-1">
+                      Future-Proof Foundation
+                    </h5>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Architecting solutions that are secure and scalable, minimising technical debt so you can focus on growth.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
 

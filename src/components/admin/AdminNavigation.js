@@ -17,7 +17,8 @@ import {
   Shield,
   Sun,
   Moon,
-  FileText
+  FileText,
+  TrendingUp
 } from 'lucide-react';
 
 export default function AdminNavigation({ session }) {
@@ -32,6 +33,7 @@ export default function AdminNavigation({ session }) {
     { name: 'Projects', href: '/admin/projects', icon: Briefcase },
     { name: 'Experience', href: '/admin/experience', icon: Briefcase },
     { name: 'About Content', href: '/admin/about', icon: FileText },
+    { name: 'Stats', href: '/admin/stats', icon: TrendingUp },
     { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];

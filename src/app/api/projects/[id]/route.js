@@ -4,12 +4,12 @@ export async function PUT(request, { params }) {
   try {
     const { id } = params;
     const body = await request.json();
-    const { title, description, long_description, image_url, image_public_id, live_url, github_url, technologies, category, featured } = body;
+    const { title, description, long_description, image_url, image_public_id, live_url, github_url, technologies, technical_skills, category, featured } = body;
     
     const db = getDatabase();
     const result = db.prepare(
-      'UPDATE projects SET title = ?, description = ?, long_description = ?, image_url = ?, image_public_id = ?, live_url = ?, github_url = ?, technologies = ?, category = ?, featured = ? WHERE id = ?'
-    ).run(title, description, long_description, image_url, image_public_id, live_url, github_url, technologies, category, featured ? 1 : 0, id);
+      'UPDATE projects SET title = ?, description = ?, long_description = ?, image_url = ?, image_public_id = ?, live_url = ?, github_url = ?, technologies = ?, technical_skills = ?, category = ?, featured = ? WHERE id = ?'
+    ).run(title, description, long_description, image_url, image_public_id, live_url, github_url, technologies, technical_skills || '', category, featured ? 1 : 0, id);
     
     if (result.changes > 0) {
       return Response.json({ success: true, message: 'Project updated successfully' });

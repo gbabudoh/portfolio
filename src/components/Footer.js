@@ -51,8 +51,7 @@ export default function Footer() {
               Godwin
             </h3>
             <p className="text-gray-300 max-w-md">
-              AI-Enhanced Full-Stack Developer & Solution Architect. Building modern web applications, 
-              mobile apps, and e-commerce solutions with intelligent automation.
+              I am a product-led full stack engineer. I turn complex ideas into scalable SaaS, e-commerce, and AI-driven web and mobile ecosystems. I specialise in high-performance architecture from concept to deployment.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
@@ -93,7 +92,7 @@ export default function Footer() {
             </ul>
           </motion.div>
 
-          {/* Services */}
+          {/* Expertise */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -101,14 +100,14 @@ export default function Footer() {
             viewport={{ once: true }}
             className="space-y-4"
           >
-            <h4 className="text-lg font-semibold text-white">Services</h4>
+            <h4 className="text-lg font-semibold text-white">Expertise</h4>
             <ul className="space-y-2 text-gray-300">
-              <li>Full-Stack Development</li>
-              <li>Mobile App Development</li>
-              <li>E-commerce Solutions</li>
-              <li>AI Integration</li>
-              <li>Server Infrastructure</li>
-              <li>Custom Admin Panels</li>
+              <li>Full-Stack Architecture</li>
+              <li>Mobile Ecosystems</li>
+              <li>AI & LLM Engineering</li>
+              <li>Cloud & DevOps</li>
+              <li>SaaS & Product Design</li>
+              <li>Performance & SEO</li>
             </ul>
           </motion.div>
         </div>

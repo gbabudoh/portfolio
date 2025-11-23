@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowDown, Code, Smartphone, Globe, Zap } from 'lucide-react';
+import { ArrowDown, Code, Smartphone, Globe, Zap, Cloud } from 'lucide-react';
 import ProjectCounter from './ProjectCounter';
 
 export default function Hero() {
@@ -58,8 +58,8 @@ export default function Hero() {
           >
             <Zap className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
             <span className="text-center leading-tight">
-              <span className="hidden sm:inline">AI-Enhanced Development Specialist</span>
-              <span className="sm:hidden">AI-Enhanced Developer</span>
+              <span className="hidden sm:inline">AI-Native Engineering Expert</span>
+              <span className="sm:hidden">AI-Native Engineer</span>
             </span>
           </motion.div>
 
@@ -86,8 +86,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 mb-6 max-w-3xl mx-auto leading-relaxed"
           >
-            Building modern web applications, mobile apps, and e-commerce solutions with AI-enhanced development workflows. 
-            Delivering 40-60% faster results through intelligent automation.
+            Combining deep full-stack expertise with next-gen AI tooling to ship scalable, secure web and mobile ecosystems in half the time. Focused on efficient, high-impact delivery.
           </motion.p>
 
           {/* Project Counter */}
@@ -99,8 +98,8 @@ export default function Hero() {
           >
             <ProjectCounter 
               className="text-lg sm:text-xl font-semibold text-gray-700 dark:text-gray-200"
-              showFeatured={true}
-              showCategories={true}
+              showFeatured={false}
+              showCategories={false}
             />
           </motion.div>
 
@@ -121,13 +120,19 @@ export default function Hero() {
               <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                 <Smartphone className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">Mobile Apps</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Mobile</span>
             </div>
             <div className="flex flex-col items-center space-y-2">
               <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
                 <Globe className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">Web Solutions</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Web</span>
+            </div>
+            <div className="flex flex-col items-center space-y-2">
+              <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                <Cloud className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              </div>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Infrastructure</span>
             </div>
           </motion.div>
 

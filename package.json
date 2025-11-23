@@ -9,7 +9,9 @@
     "build:turbo": "next build --turbopack",
     "start": "next start",
     "start:prod": "NODE_ENV=production next start -p ${PORT:-3000}",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate:skills": "node scripts/migrate-skills.js",
+    "migrate:skills:clear": "node scripts/migrate-skills.js --clear"
   },
   "dependencies": {
     "@types/better-sqlite3": "^7.6.13",

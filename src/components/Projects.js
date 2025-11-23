@@ -26,7 +26,7 @@ export default function Projects() {
     }
   };
 
-  const categories = ['All', 'Business site', 'Web app', 'Mobile app', 'e-commerce', 'Ideation'];
+  const categories = ['All', 'Marketing & Content Platforms', 'SaaS & Productivity', 'Commerce & Marketplaces', 'AI & Data Intelligence', 'Interactive & Media', 'Mobile Applications', 'Design & Strategy Case Studies'];
   
   const filteredProjects = activeCategory === 'All' 
     ? projects 
@@ -92,7 +92,7 @@ export default function Projects() {
           {filteredProjects.map((project, index) => (
             <article
               key={project.id}
-              className="bg-white dark:bg-gray-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+              className="bg-white dark:bg-gray-700 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-200 dark:border-gray-600"
             >
               {/* Project Image */}
               <div className="relative aspect-video bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 overflow-hidden">
@@ -133,7 +133,7 @@ export default function Projects() {
                 <div className="mb-4">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Technologies:</p>
                   <div className="flex flex-wrap gap-2">
-                    {project.technologies.split(', ').map((tech, techIndex) => (
+                    {project.technologies && project.technologies.split(', ').filter(t => t.trim()).map((tech, techIndex) => (
                       <span
                         key={techIndex}
                         className="px-2 py-1 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded"
@@ -142,6 +142,21 @@ export default function Projects() {
                       </span>
                     ))}
                   </div>
+                  {project.technical_skills && (
+                    <>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 mt-3">Technical Skills:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {project.technical_skills.split(', ').filter(t => t.trim()).map((skill, skillIndex) => (
+                          <span
+                            key={skillIndex}
+                            className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Action Buttons */}
@@ -202,7 +217,7 @@ export default function Projects() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700 shadow-2xl"
           >
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
@@ -239,8 +254,8 @@ export default function Projects() {
 
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Technologies</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedProject.technologies.split(', ').map((tech, index) => (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {selectedProject.technologies && selectedProject.technologies.split(', ').filter(t => t.trim()).map((tech, index) => (
                       <span
                         key={index}
                         className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-sm rounded-full"
@@ -249,6 +264,21 @@ export default function Projects() {
                       </span>
                     ))}
                   </div>
+                  {selectedProject.technical_skills && (
+                    <>
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Technical Skills</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProject.technical_skills.split(', ').filter(t => t.trim()).map((skill, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 text-sm rounded-full"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="flex space-x-4">

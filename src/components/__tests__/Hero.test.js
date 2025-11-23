@@ -31,10 +31,10 @@ describe('Hero Component', () => {
     expect(heading).toHaveTextContent(/full-stack developer/i)
   })
 
-  test('renders AI-Enhanced Development Specialist badge', () => {
+  test('renders AI-Native Engineering Expert badge', () => {
     render(<Hero />)
     
-    const badge = screen.getByText(/AI-Enhanced Development Specialist/i)
+    const badge = screen.getByText(/AI-Native Engineering Expert/i)
     expect(badge).toBeInTheDocument()
   })
 
