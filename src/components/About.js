@@ -164,6 +164,14 @@ export default function About() {
             viewport={{ once: true }}
             className="grid grid-cols-2 gap-6"
           >
+            {stats.length === 0 && loading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="text-center p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 animate-pulse">
+                    <div className="h-9 bg-gray-200 dark:bg-gray-600 rounded mb-3 w-2/3 mx-auto" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4 mx-auto" />
+                  </div>
+                ))
+              : null}
             {stats.map((stat, index) => {
               // Special handling for production_projects - use automatic counter
               if (stat.key === 'production_projects') {

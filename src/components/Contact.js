@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -83,10 +83,10 @@ export default function Contact() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Let's Build Something Extraordinary
+            Let&apos;s Build Something Extraordinary
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Ready to upgrade your digital infrastructure? I'm available to engineer modern, scalable solutions that deliver real business impact.
+            Ready to upgrade your digital infrastructure? I&apos;m available to engineer modern, scalable solutions that deliver real business impact.
           </p>
         </motion.div>
 
@@ -251,7 +251,7 @@ export default function Contact() {
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-300"
-                  placeholder="What&apos;s this about?"
+                  placeholder="What's this about?"
                 />
               </div>
 
@@ -292,6 +292,7 @@ export default function Contact() {
                   className="p-4 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg"
                 >
                   <div className="flex items-center space-x-2 text-red-800 dark:text-red-200">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
                     <span>Something went wrong. Please try again.</span>
                   </div>
                 </motion.div>

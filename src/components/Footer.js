@@ -12,26 +12,26 @@ export default function Footer() {
     {
       name: 'GitHub',
       icon: Github,
-      url: 'https://github.com/yourusername',
-      color: 'hover:text-gray-600 dark:hover:text-gray-300'
+      url: 'https://github.com/gbabudoh',
+      color: 'hover:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-700'
     },
     {
       name: 'LinkedIn',
       icon: Linkedin,
-      url: 'https://linkedin.com/in/yourusername',
-      color: 'hover:text-blue-600 dark:hover:text-blue-400'
+      url: 'https://linkedin.com/in/gbabudoh',
+      color: 'hover:text-blue-400 hover:bg-blue-900/30 dark:hover:bg-blue-900/30'
     },
     {
-      name: 'Twitter',
+      name: 'Twitter / X',
       icon: Twitter,
-      url: 'https://twitter.com/yourusername',
-      color: 'hover:text-blue-400 dark:hover:text-blue-300'
+      url: 'https://twitter.com/gbabudoh',
+      color: 'hover:text-blue-400 hover:bg-blue-900/30 dark:hover:bg-blue-900/30'
     },
     {
       name: 'Email',
       icon: Mail,
-      url: 'mailto:contact@godwin.dev',
-      color: 'hover:text-red-600 dark:hover:text-red-400'
+      url: 'mailto:gbabudoh@gmail.com',
+      color: 'hover:text-red-400 hover:bg-red-900/30 dark:hover:bg-red-900/30'
     }
   ];
 
@@ -53,14 +53,14 @@ export default function Footer() {
             <p className="text-gray-300 max-w-md">
               I am a product-led full stack engineer. I turn complex ideas into scalable SaaS, e-commerce, and AI-driven web and mobile ecosystems. I specialise in high-performance architecture from concept to deployment.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex space-x-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`p-2 bg-gray-800 dark:bg-gray-900 rounded-lg transition-all duration-300 ${social.color}`}
+                  className={`p-2 bg-gray-800 rounded-lg transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500 ${social.color}`}
                   aria-label={social.name}
                 >
                   <social.icon className="w-5 h-5" />
@@ -79,14 +79,18 @@ export default function Footer() {
           >
             <h4 className="text-lg font-semibold text-white">Quick Links</h4>
             <ul className="space-y-2">
-              {['Home', 'About', 'Skills', 'Projects', 'Contact'].map((item) => (
+              {['Home', 'About', 'Skills', 'Projects', 'Experience', 'Contact'].map((item) => (
                 <li key={item}>
-                  <button
-                    onClick={() => document.querySelector(`#${item.toLowerCase()}`)?.scrollIntoView({ behavior: 'smooth' })}
+                  <a
+                    href={`#${item.toLowerCase()}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.querySelector(`#${item.toLowerCase()}`)?.scrollIntoView({ behavior: 'smooth' });
+                    }}
                     className="text-gray-300 hover:text-white transition-colors duration-300"
                   >
                     {item}
-                  </button>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -121,13 +125,13 @@ export default function Footer() {
           className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center"
         >
           <div className="text-gray-400 text-sm text-center md:text-left">
-            <p>&copy; 2024 Godwin. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Godwin. All rights reserved.</p>
             <p className="mt-1">Built with Next.js, SQLite, and ❤️</p>
           </div>
-          
+
           <button
             onClick={scrollToTop}
-            className="mt-4 md:mt-0 p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 hover:scale-110"
+            className="mt-4 md:mt-0 p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 hover:scale-110 focus-visible:ring-2 focus-visible:ring-blue-400"
             aria-label="Scroll to top"
           >
             <ArrowUp className="w-5 h-5 text-white" />
