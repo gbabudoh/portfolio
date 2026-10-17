@@ -108,6 +108,13 @@ export function ContactForm() {
 
   const submitting = status === 'submitting';
 
+const INTENT_PRESETS = [
+  'New SaaS / Web Product',
+  'Mobile App Development',
+  'System Architecture & Audit',
+  'Consulting / Advisory',
+];
+
   return (
     <form ref={formRef} onSubmit={onSubmit} className="relative space-y-5">
       <div className="grid gap-5 sm:grid-cols-2">
@@ -118,11 +125,38 @@ export function ContactForm() {
           <Input id="email" name="email" type="email" autoComplete="email" required maxLength={200} value={values.email} onChange={update} />
         </Field>
       </div>
-      <Field label="Subject" htmlFor="subject" required>
-        <Input id="subject" name="subject" required maxLength={200} value={values.subject} onChange={update} placeholder="e.g. New SaaS platform" />
-      </Field>
-      <Field label="Message" htmlFor="message" required hint="A few lines on goals, timeline and budget helps a lot.">
-        <Textarea id="message" name="message" required rows={6} maxLength={5000} value={values.message} onChange={update} />
+
+      <div className="space-y-2">
+        <Field label="Subject" htmlFor="subject" required>
+          <Input id="subject" name="subject" required maxLength={200} value={values.subject} onChange={update} placeholder="e.g. New SaaS platform or architecture review" />
+        </Field>
+        {/* One-tap intent chips for fast mobile input */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+          <span className="mr-1 font-mono text-[10px] uppercase tracking-wider text-muted">
+            Quick intent:
+          </span>
+          {INTENT_PRESETS.map((intent) => {
+            const isSelected = values.subject === intent;
+            return (
+              <button
+                key={intent}
+                type="button"
+                onClick={() => setValues((v) => ({ ...v, subject: intent }))}
+                className={`rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
+                  isSelected
+                    ? 'bg-accent text-accent-foreground shadow-2xs font-semibold'
+                    : 'border border-border/80 bg-surface/70 text-muted hover:border-foreground/30 hover:text-foreground'
+                }`}
+              >
+                {intent}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <Field label="Message" htmlFor="message" required hint="A few lines on goals, timeline, and scope helps a lot.">
+        <Textarea id="message" name="message" required rows={4} maxLength={5000} value={values.message} onChange={update} placeholder="Tell me about what you're looking to build..." />
       </Field>
 
       {/* Honeypot: hidden from people, often filled in by bots */}
@@ -138,10 +172,20 @@ export function ContactForm() {
         </p>
       )}
 
-      <Button type="submit" size="lg" disabled={submitting} className="w-full sm:w-auto">
-        {submitting ? <Loader2 className="animate-spin" /> : <Send />}
-        {submitting ? 'Sending…' : 'Send message'}
-      </Button>
+      <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+        <Button type="submit" size="lg" disabled={submitting} className="w-full sm:w-auto">
+          {submitting ? <Loader2 className="animate-spin" /> : <Send />}
+          {submitting ? 'Sending…' : 'Send message'}
+        </Button>
+
+        <div className="flex items-center gap-2 text-xs text-muted">
+          <span className="relative flex size-2">
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-75" />
+            <span className="relative inline-flex size-2 rounded-full bg-success" />
+          </span>
+          <span>Replies personally within 24 hours</span>
+        </div>
+      </div>
     </form>
   );
 }

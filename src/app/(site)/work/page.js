@@ -20,7 +20,7 @@ export default function WorkPage() {
         title="Selected projects"
         description="Production platforms I've designed, built and shipped — each with a short case study covering the problem, approach and stack."
       />
-      <Section className="pt-12 sm:pt-16 lg:pt-16">
+      <Section className="pt-6 sm:pt-12 lg:pt-16">
         <WorkBrowser projects={projects} />
       </Section>
       <CtaBand />

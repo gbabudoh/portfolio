@@ -29,36 +29,52 @@ export default function ContactPage() {
         description="Share a little about your project and I'll reply with thoughts on approach, timeline and next steps."
       >
         {/* One-tap shortcuts for mobile users who'd rather not fill in a form */}
-        <div className="flex gap-3 pt-1 lg:hidden">
-          <ButtonLink href={`mailto:${site.email}`} external={false} variant="secondary" size="lg" className="flex-1 sm:flex-none">
-            <Mail />
+        <div className="flex flex-wrap items-center gap-2 pt-1 lg:hidden">
+          <ButtonLink href={`mailto:${site.email}`} external={false} variant="secondary" size="md" className="flex-1">
+            <Mail className="size-4" />
             Email me
           </ButtonLink>
-          <ButtonLink href={site.phone.href} external={false} variant="secondary" size="lg" className="flex-1 sm:flex-none">
-            <Phone />
+          <ButtonLink href={site.phone.href} external={false} variant="secondary" size="md" className="flex-1">
+            <Phone className="size-4" />
             Call
           </ButtonLink>
         </div>
       </PageHeader>
-      <Section className="pt-10 sm:pt-16 lg:pt-16">
-        <div className="grid gap-12 lg:grid-cols-[1fr_360px] lg:gap-20">
+
+      <Section className="pt-8 sm:pt-14 lg:pt-16">
+        <div className="grid gap-10 lg:grid-cols-[1fr_360px] lg:gap-16">
           <div className="max-w-2xl">
             <ContactForm />
           </div>
 
-          <aside className="space-y-8 border-t border-border pt-10 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0">
-            <div className="space-y-3">
-              <h2 className="eyebrow">Direct</h2>
-              <ul className="-mx-3 space-y-1">
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <div className="rounded-2xl border border-border bg-surface/90 p-5 shadow-xs backdrop-blur-xs sm:p-6 space-y-6">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-border/70 pb-4">
+                <div>
+                  <h2 className="text-sm font-semibold text-foreground">Direct Channels</h2>
+                  <p className="text-xs text-muted">Immediate response channels</p>
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-0.5 font-mono text-[11px] font-medium text-success">
+                  <span className="relative flex size-2">
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-75" />
+                    <span className="relative inline-flex size-2 rounded-full bg-success" />
+                  </span>
+                  Available
+                </span>
+              </div>
+
+              {/* Channels list */}
+              <ul className="space-y-2">
                 {channels.map(({ icon: ChannelIcon, label, value, href }) => {
                   const content = (
                     <>
-                      <span className="grid size-10 shrink-0 place-items-center rounded-md border border-border bg-background text-muted transition-colors group-hover:border-accent/40 group-hover:text-accent-text">
-                        <ChannelIcon className="size-[18px]" aria-hidden="true" />
+                      <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-border/80 bg-background text-muted transition-colors group-hover:border-accent/40 group-hover:text-accent-text">
+                        <ChannelIcon className="size-4" aria-hidden="true" />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-xs text-muted">{label}</span>
-                        <span className="block break-words text-[15px] font-medium sm:text-sm">{value}</span>
+                        <span className="block font-mono text-[10px] uppercase tracking-wider text-muted">{label}</span>
+                        <span className="block truncate text-sm font-medium text-foreground">{value}</span>
                       </span>
                       {href && (
                         <ChevronRight
@@ -68,13 +84,13 @@ export default function ContactPage() {
                       )}
                     </>
                   );
-                  const row = 'flex min-h-14 items-center gap-3 rounded-lg px-3 py-2';
+                  const row = 'flex items-center gap-3 rounded-xl border border-border/60 bg-background/60 p-2.5';
                   return (
                     <li key={label}>
                       {href ? (
                         <a
                           href={href}
-                          className={`group ${row} transition-colors hover:bg-subtle active:bg-subtle`}
+                          className={`group ${row} transition-all hover:border-accent/30 hover:bg-surface`}
                           aria-label={`${label}: ${value}`}
                         >
                           {content}
@@ -86,28 +102,31 @@ export default function ContactPage() {
                   );
                 })}
               </ul>
-            </div>
 
-            {socials.length > 0 && (
-              <div className="space-y-4 border-t border-border pt-8">
-                <h2 className="eyebrow">Elsewhere</h2>
-                <ul className="flex flex-wrap gap-3">
-                  {socials.map((social) => (
-                    <li key={social.url}>
-                      <a
-                        href={social.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`${social.label} (opens in a new tab)`}
-                        className="grid size-11 place-items-center rounded-md border border-border text-muted transition-colors hover:bg-subtle hover:text-foreground active:bg-subtle"
-                      >
-                        <Icon name={social.platform} className="size-5" />
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              {/* Social links */}
+              {socials.length > 0 && (
+                <div className="border-t border-border/70 pt-5 space-y-3">
+                  <h3 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted">
+                    Elsewhere on the web
+                  </h3>
+                  <ul className="flex flex-wrap gap-2">
+                    {socials.map((social) => (
+                      <li key={social.url}>
+                        <a
+                          href={social.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`${social.label} (opens in a new tab)`}
+                          className="grid size-10 place-items-center rounded-lg border border-border bg-background text-muted transition-all hover:border-foreground/30 hover:bg-surface hover:text-foreground active:bg-subtle"
+                        >
+                          <Icon name={social.platform} className="size-4" />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </aside>
         </div>
       </Section>

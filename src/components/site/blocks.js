@@ -25,14 +25,34 @@ export function SectionHeader({ eyebrow, title, description, action, className }
   );
 }
 
-export function PageHeader({ eyebrow, title, description, children }) {
+export function PageHeader({ eyebrow, title, description, aside, children }) {
+  if (aside) {
+    return (
+      <div className="border-b border-border">
+        <div className="container py-8 sm:py-16 lg:py-20">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-12">
+            <div className="space-y-4 sm:space-y-5 animate-fade-up lg:col-span-7">
+              {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+              <h1 className="text-h1">{title}</h1>
+              {description && <p className="text-pretty text-base text-muted sm:text-lg lg:text-xl">{description}</p>}
+              {children}
+            </div>
+            <div className="animate-fade-up [animation-delay:150ms] lg:col-span-5">
+              {aside}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="border-b border-border">
-      <div className="container py-12 sm:py-20 lg:py-24">
-        <div className="max-w-3xl animate-fade-up space-y-5">
+      <div className="container py-8 sm:py-16 lg:py-20">
+        <div className="max-w-3xl animate-fade-up space-y-4 sm:space-y-5">
           {eyebrow && <p className="eyebrow">{eyebrow}</p>}
           <h1 className="text-h1">{title}</h1>
-          {description && <p className="text-pretty text-lg text-muted sm:text-xl">{description}</p>}
+          {description && <p className="text-pretty text-base text-muted sm:text-lg lg:text-xl">{description}</p>}
           {children}
         </div>
       </div>
@@ -73,20 +93,32 @@ export function ProjectImage({ src, alt, priority, sizes, className }) {
 
 export function ProjectCard({ project, priority = false }) {
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-background transition-colors hover:border-foreground/20">
+    <article className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-xs transition-all duration-300 hover:border-foreground/30 hover:shadow-md">
+      {/* Mini browser mock header */}
+      <div className="flex items-center gap-1.5 border-b border-border/60 bg-subtle/70 px-3.5 py-2">
+        <span className="size-1.5 rounded-full bg-border" />
+        <span className="size-1.5 rounded-full bg-border" />
+        <span className="size-1.5 rounded-full bg-border" />
+        <span className="ml-1.5 truncate font-mono text-[10px] text-muted">
+          {project.slug}.app
+        </span>
+      </div>
+
       <ProjectImage
         src={project.image}
         alt=""
         priority={priority}
         sizes="(min-width: 1024px) 384px, (min-width: 640px) 50vw, 100vw"
-        className="aspect-[16/10] border-b border-border"
+        className="aspect-[16/10] border-b border-border/80"
       />
       <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-muted">{project.category}</span>
+        <div className="flex items-center justify-between gap-2">
+          <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted">
+            {project.category}
+          </span>
           {project.featured && <Badge tone="accent">Featured</Badge>}
         </div>
-        <h3 className="text-lg leading-snug">
+        <h3 className="text-lg font-semibold tracking-tight leading-snug transition-colors group-hover:text-accent-text sm:text-xl">
           <Link href={`/work/${project.slug}`} className="after:absolute after:inset-0 focus-visible:outline-none">
             {project.title}
           </Link>
@@ -106,11 +138,16 @@ export function ProjectCard({ project, priority = false }) {
             )}
           </ul>
         )}
+
+        {/* Mobile-first explicit touch link affordance */}
+        <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-3 text-xs font-medium">
+          <span className="inline-flex items-center gap-1 text-foreground transition-colors group-hover:text-accent-text">
+            Read case study
+            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+          </span>
+          <span className="font-mono text-[11px] text-muted">Production</span>
+        </div>
       </div>
-      <ArrowUpRight
-        className="absolute right-4 top-4 size-8 rounded-full bg-background/90 p-1.5 text-foreground opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
-        aria-hidden="true"
-      />
     </article>
   );
 }
@@ -142,20 +179,34 @@ export function StatStrip({ stats }) {
 export function CtaBand() {
   return (
     <Section>
-      <div className="flex flex-col items-start gap-8 rounded-xl bg-foreground px-6 py-12 text-background sm:px-12 sm:py-16 md:flex-row md:items-center md:justify-between">
-        <div className="max-w-xl space-y-3">
-          <h2 className="text-h2">Have a product in mind?</h2>
-          <p className="text-background/70 sm:text-lg">
-            Tell me about your goals and let&apos;s work out the right way to build it.
-          </p>
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-8 shadow-xs sm:p-12 lg:p-14">
+        {/* Subtle ambient gradient flare in corner */}
+        <div 
+          className="pointer-events-none absolute -right-16 -top-16 size-72 rounded-full bg-gradient-to-br from-accent/20 via-sky-500/10 to-transparent blur-3xl opacity-70" 
+          aria-hidden="true" 
+        />
+
+        <div className="relative flex flex-col items-start gap-6 sm:gap-8 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-xl space-y-3">
+            <span className="font-mono text-xs font-semibold uppercase tracking-wider text-accent-text">
+              Let&apos;s Connect
+            </span>
+            <h2 className="text-h2 font-semibold tracking-tight text-foreground">
+              Have a product in mind?
+            </h2>
+            <p className="text-pretty text-base text-muted sm:text-lg">
+              Tell me about your goals and let&apos;s work out the right way to build it.
+            </p>
+          </div>
+
+          <Link
+            href="/contact"
+            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-xl bg-accent px-6 font-medium text-accent-foreground shadow-sm transition-all hover:bg-accent/90 hover:shadow-md focus-visible:ring-offset-2"
+          >
+            Start a conversation
+            <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
         </div>
-        <Link
-          href="/contact"
-          className="inline-flex h-12 shrink-0 items-center gap-2 rounded-md bg-background px-6 font-medium text-foreground transition-opacity hover:opacity-90 focus-visible:ring-offset-foreground"
-        >
-          Start a conversation
-          <ArrowRight className="size-4" aria-hidden="true" />
-        </Link>
       </div>
     </Section>
   );

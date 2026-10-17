@@ -108,6 +108,7 @@ const SKILL_DOMAINS = [
   { name: 'Cloud, DevOps & Security', match: ['Infrastructure (DevOps)', 'Security', 'Version Control & Collaboration'] },
   { name: 'Quality & Performance', match: ['Testing (QA)', 'Performance & SEO', 'Performance & SEO Optimization'] },
   { name: 'AI Engineering', match: ['AI & LLM Engineering', 'Development Environment & AI Workflow'] },
+  { name: 'Graphics, 3D & Web3', match: ['Specialized', 'Specialised'] },
 ];
 
 export function getSkillGroups() {
@@ -116,7 +117,7 @@ export function getSkillGroups() {
     .all();
 
   const groups = SKILL_DOMAINS.map((d) => ({ name: d.name, skills: [] }));
-  const other = { name: 'Specialised', skills: [] };
+  const other = { name: 'Other', skills: [] };
 
   for (const skill of skills) {
     const index = SKILL_DOMAINS.findIndex((d) => d.match.includes(skill.category));
