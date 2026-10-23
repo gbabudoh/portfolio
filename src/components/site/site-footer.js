@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { mainNav, site } from '@/lib/site';
 import { Icon } from '@/components/ui/icon';
+import { CookieSettingsButton } from '@/components/site/cookie-banner';
 
 export function SiteFooter({ socials = [] }) {
   return (
@@ -61,7 +62,10 @@ export function SiteFooter({ socials = [] }) {
       <div className="border-t border-border">
         <div className="container flex flex-col gap-2 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} {site.name}. All rights reserved.</p>
-          <p>Built with Next.js</p>
+          <div className="flex items-center gap-4">
+            <CookieSettingsButton className="transition-colors hover:text-foreground" />
+            <p>Built with Next.js</p>
+          </div>
         </div>
       </div>
     </footer>

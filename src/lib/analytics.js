@@ -1,5 +1,7 @@
 'use client';
 
+import { getConsent } from '@/lib/consent';
+
 // Analytics functions - no class instantiation during module load
 let analyticsState = {
   visitorId: null,
@@ -14,15 +16,26 @@ let analyticsState = {
   lastEngagement: 0
 };
 
+// The visitor ID is only kept across visits once analytics cookies are accepted;
+// otherwise each page load gets a temporary ID and any stored one is removed.
 function getOrCreateVisitorId() {
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return null;
-  
-  let visitorId = localStorage.getItem('portfolio_visitor_id');
-  if (!visitorId) {
-    visitorId = 'visitor_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-    localStorage.setItem('portfolio_visitor_id', visitorId);
+  if (typeof window === 'undefined') return null;
+
+  const newId = () => 'visitor_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+  try {
+    if (getConsent() !== 'granted') {
+      localStorage.removeItem('portfolio_visitor_id');
+      return newId();
+    }
+    let visitorId = localStorage.getItem('portfolio_visitor_id');
+    if (!visitorId) {
+      visitorId = newId();
+      localStorage.setItem('portfolio_visitor_id', visitorId);
+    }
+    return visitorId;
+  } catch {
+    return newId();
   }
-  return visitorId;
 }
 
 function generateSessionId() {

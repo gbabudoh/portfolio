@@ -2,6 +2,7 @@ import { SiteHeader } from '@/components/site/site-header';
 import { SiteFooter } from '@/components/site/site-footer';
 import AnalyticsScript from '@/components/AnalyticsScript';
 import { TrackingScripts } from '@/components/site/tracking-scripts';
+import { CookieBanner } from '@/components/site/cookie-banner';
 import { getActiveIntegrations, getCv, getVisibleSocialLinks } from '@/lib/settings';
 import { site } from '@/lib/site';
 
@@ -31,6 +32,7 @@ export default function SiteLayout({ children }) {
       </main>
       <SiteFooter socials={socials} />
       <AnalyticsScript />
+      <CookieBanner />
       <TrackingScripts gaId={integrations.ga_measurement_id} clarityId={integrations.clarity_project_id} />
     </div>
   );
