@@ -12,6 +12,8 @@ export const INTEGRATIONS = {
     // Accept either the bare ID or the full gtag snippet pasted from Google.
     extract: (input) => input.toUpperCase().match(/G-[A-Z0-9]{4,20}/)?.[0] || input.trim().toUpperCase(),
     example: 'G-XXXXXXXXXX',
+    // Primary source; a value saved in the admin overrides it.
+    env: 'NEXT_PUBLIC_GA_MEASUREMENT_ID',
   },
   clarity_project_id: {
     label: 'Microsoft Clarity',
@@ -25,7 +27,6 @@ export const INTEGRATIONS = {
 };
 
 const DEFAULTS = {
-  ga_measurement_id: 'G-C54P1GWYQF',
   clarity_project_id: 'ytkd0tb8bx',
 };
 
@@ -57,6 +58,23 @@ export function getIntegrationSettings() {
       return [key, def.pattern.test(value) ? value : ''];
     })
   );
+}
+
+// Fallback IDs from the environment, validated like admin input.
+export function getIntegrationEnvDefaults() {
+  return Object.fromEntries(
+    Object.entries(INTEGRATIONS).map(([key, def]) => {
+      const value = def.env ? process.env[def.env]?.trim() || '' : '';
+      return [key, def.pattern.test(value) ? value : ''];
+    })
+  );
+}
+
+// IDs the public site should load: the admin value, else the environment fallback.
+export function getActiveIntegrations() {
+  const saved = getIntegrationSettings();
+  const fallback = getIntegrationEnvDefaults();
+  return Object.fromEntries(Object.keys(INTEGRATIONS).map((key) => [key, saved[key] || fallback[key]]));
 }
 
 // Returns { values } on success or { errors } keyed by setting.

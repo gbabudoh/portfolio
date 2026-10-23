@@ -2,7 +2,7 @@ import { CheckCircle2, XCircle } from 'lucide-react';
 import { getAdminCredentials, getSession } from '@/lib/auth';
 import { formatDateTime } from '@/lib/format';
 import { mainNav, site } from '@/lib/site';
-import { getCv, getIntegrationSettings, getSocialLinks } from '@/lib/settings';
+import { getCv, getIntegrationEnvDefaults, getIntegrationSettings, getSocialLinks } from '@/lib/settings';
 import { AdminPageHeader, Card, CardHeader } from '@/components/admin/primitives';
 import { IntegrationsForm } from '@/components/admin/integrations-form';
 import { CvForm } from '@/components/admin/cv-form';
@@ -86,7 +86,7 @@ export default async function SettingsPage() {
 
         <Card>
           <CardHeader title="Analytics & tracking" description="Connect Google Analytics and Microsoft Clarity to the public site." />
-          <IntegrationsForm initial={integrations} />
+          <IntegrationsForm initial={integrations} fallback={getIntegrationEnvDefaults()} />
         </Card>
 
         <Card>

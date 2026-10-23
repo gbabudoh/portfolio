@@ -2,11 +2,11 @@ import { SiteHeader } from '@/components/site/site-header';
 import { SiteFooter } from '@/components/site/site-footer';
 import AnalyticsScript from '@/components/AnalyticsScript';
 import { TrackingScripts } from '@/components/site/tracking-scripts';
-import { getCv, getIntegrationSettings, getVisibleSocialLinks } from '@/lib/settings';
+import { getActiveIntegrations, getCv, getVisibleSocialLinks } from '@/lib/settings';
 import { site } from '@/lib/site';
 
 export default function SiteLayout({ children }) {
-  const integrations = getIntegrationSettings();
+  const integrations = getActiveIntegrations();
   const hasCv = Boolean(getCv());
   const socials = getVisibleSocialLinks();
 

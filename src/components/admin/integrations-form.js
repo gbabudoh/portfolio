@@ -23,7 +23,8 @@ const FIELDS = [
   },
 ];
 
-export function IntegrationsForm({ initial }) {
+// `fallback` holds IDs set via environment variables; a saved value overrides them.
+export function IntegrationsForm({ initial, fallback = {} }) {
   const toast = useToast();
   const [values, setValues] = useState(initial);
   const [saved, setSaved] = useState(initial);
@@ -63,20 +64,21 @@ export function IntegrationsForm({ initial }) {
       <div className="space-y-5 p-5">
         {FIELDS.map((field) => {
           const id = `integration-${field.key}`;
-          const active = Boolean(saved[field.key]);
+          const envValue = fallback[field.key];
+          const active = Boolean(saved[field.key] || envValue);
           return (
             <div key={field.key} className="space-y-1.5">
               <div className="flex items-center justify-between gap-3">
                 <label htmlFor={id} className="text-sm font-medium">{field.label}</label>
                 <span className={active ? 'text-xs font-medium text-success' : 'text-xs text-muted'}>
-                  {active ? '● Active' : 'Not connected'}
+                  {saved[field.key] ? '● Active' : envValue ? '● Active (environment)' : 'Not connected'}
                 </span>
               </div>
               <Input
                 id={id}
                 value={values[field.key] || ''}
                 onChange={(e) => setValues((v) => ({ ...v, [field.key]: e.target.value }))}
-                placeholder={field.placeholder}
+                placeholder={envValue ? `${envValue} (from environment)` : field.placeholder}
                 spellCheck={false}
                 autoComplete="off"
                 aria-invalid={errors[field.key] ? 'true' : undefined}
@@ -97,7 +99,7 @@ export function IntegrationsForm({ initial }) {
           );
         })}
         <p className="rounded-md bg-subtle px-3 py-2.5 text-xs text-muted">
-          Tags load on public pages only, in production builds. Admin pages are never tracked. Leave a field empty to disconnect it.
+          Tags load on public pages only, in production builds. Admin pages are never tracked. A saved ID overrides the environment variable; leave a field empty to use the environment value, or disconnect it if there is none.
         </p>
       </div>
       <div className="flex justify-end gap-2 border-t border-border bg-surface px-5 py-3">
