@@ -1,51 +1,34 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import { 
-  Brain, 
-  Cloud, 
-  Code2, 
-  Gauge, 
-  Layers, 
-  Server, 
-  Smartphone, 
-  Sparkles, 
-  Search, 
-  X,
-  CheckCircle2 
-} from 'lucide-react';
+import { Brain, Cloud, Code2, Gauge, Layers, Server, Search, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
+// Keyed by domain id from src/lib/skill-taxonomy.js.
 const DOMAIN_ICONS = {
-  'frontend-design': Code2,
-  mobile: Smartphone,
-  'backend-apis': Server,
-  'cloud-devops-security': Cloud,
-  'quality-performance': Gauge,
+  'product-engineering': Code2,
+  'backend-data': Server,
+  'infrastructure-security': Cloud,
   'ai-engineering': Brain,
-  'graphics-3d-web3': Sparkles,
+  delivery: Gauge,
 };
 
 // Key production tools highlighted with subtle accent emphasis
 const CORE_TOOLS = new Set([
-  'TypeScript',
-  'TypeScript/JavaScript',
-  'JavaScript (ES6+)',
+  'Next.js (App Router)',
   'React',
-  'Next.js',
+  'TypeScript / JavaScript',
+  'Python',
   'Node.js',
   'PostgreSQL',
-  'Python',
+  'Prisma',
   'Tailwind CSS',
-  'Docker',
-  'React Native',
-  'GraphQL',
-  'Redis',
-  'LangChain',
-  'Framer Motion',
-  'CI/CD Pipelines',
-  'RESTful APIs',
+  'Stripe (Checkout, Webhooks, Connect)',
+  'Nginx',
+  'Claude Code',
 ]);
+
+const countItems = (category) => category.entries.reduce((n, e) => n + e.items.length, 0);
 
 export function SkillsExplorer({ groups }) {
   const [active, setActive] = useState(groups[0]?.id);
@@ -77,15 +60,17 @@ export function SkillsExplorer({ groups }) {
 
     const matches = [];
     for (const group of groups) {
-      for (const entry of group.entries) {
-        for (const item of entry.items) {
-          if (item.toLowerCase().includes(query)) {
-            matches.push({
-              item,
-              category: entry.label || group.name,
-              domain: group.name,
-              isCore: CORE_TOOLS.has(item),
-            });
+      for (const category of group.categories) {
+        for (const entry of category.entries) {
+          for (const item of entry.items) {
+            if (item.toLowerCase().includes(query)) {
+              matches.push({
+                item,
+                category: entry.label ? `${category.name} · ${entry.label}` : category.name,
+                domain: group.name,
+                isCore: CORE_TOOLS.has(item),
+              });
+            }
           }
         }
       }
@@ -260,48 +245,60 @@ export function SkillsExplorer({ groups }) {
                   </p>
                 </div>
 
-                {/* Sub-category Cards */}
-                <div className="grid gap-3 p-5 sm:grid-cols-2 sm:p-6">
-                  {group.entries.map((entry, i) => (
-                    <div
-                      key={entry.label || i}
-                      className="flex flex-col justify-between rounded-xl border border-border/70 bg-surface/40 p-4 transition-colors hover:border-border"
-                    >
-                      <div>
-                        {entry.label && (
-                          <div className="mb-3 flex items-center justify-between">
-                            <h4 className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted">
-                              {entry.label}
-                            </h4>
-                            <span className="font-mono text-[10px] text-muted/60">
-                              {entry.items.length}
-                            </span>
-                          </div>
-                        )}
-                        <ul className="flex flex-wrap gap-1.5">
-                          {entry.items.map((item) => {
-                            const isCore = CORE_TOOLS.has(item);
-                            return (
-                              <li
-                                key={item}
-                                className={cn(
-                                  'inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium transition-all',
-                                  isCore
-                                    ? 'border border-accent/30 bg-accent-soft/60 text-accent-text shadow-2xs font-semibold'
-                                    : 'border border-border/80 bg-background text-foreground hover:border-foreground/30'
-                                )}
-                              >
-                                {isCore && (
-                                  <span className="mr-1.5 size-1.5 rounded-full bg-accent" aria-hidden="true" />
-                                )}
-                                {item}
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    </div>
-                  ))}
+                {/* Categories: heading on the left, labelled skill rows on the right */}
+                <div className="divide-y divide-border/80">
+                  {group.categories.map((category) => {
+                    const headingId = `skills-${group.id}-${category.id}`;
+                    const total = countItems(category);
+                    return (
+                      <section
+                        key={category.id}
+                        aria-labelledby={headingId}
+                        className="grid gap-3 px-5 py-5 sm:grid-cols-[180px_1fr] sm:gap-6 sm:px-6"
+                      >
+                        <div>
+                          <h4 id={headingId} className="text-sm font-semibold text-foreground">
+                            {category.name}
+                          </h4>
+                          <p className="mt-0.5 font-mono text-[11px] text-muted">
+                            {total} {total === 1 ? 'skill' : 'skills'}
+                          </p>
+                        </div>
+                        <div className="min-w-0 space-y-4">
+                          {category.entries.map((entry, i) => (
+                            <div key={entry.label || i}>
+                              {entry.label && (
+                                <p className="mb-2 font-mono text-[11px] font-semibold uppercase tracking-wider text-muted">
+                                  {entry.label}
+                                </p>
+                              )}
+                              <ul className="flex flex-wrap gap-1.5">
+                                {entry.items.map((item) => {
+                                  const isCore = CORE_TOOLS.has(item);
+                                  return (
+                                    <li
+                                      key={item}
+                                      className={cn(
+                                        'inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium transition-all',
+                                        isCore
+                                          ? 'border border-accent/30 bg-accent-soft/60 text-accent-text shadow-2xs font-semibold'
+                                          : 'border border-border/80 bg-background text-foreground hover:border-foreground/30'
+                                      )}
+                                    >
+                                      {isCore && (
+                                        <span className="mr-1.5 size-1.5 rounded-full bg-accent" aria-hidden="true" />
+                                      )}
+                                      {item}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    );
+                  })}
                 </div>
               </div>
             ))}

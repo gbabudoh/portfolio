@@ -1,6 +1,7 @@
 // Server-side read model for the public site. Pages call these directly
 // (React Server Components) instead of fetching our own API over HTTP.
 import { getDatabase } from '@/lib/database';
+import { SKILL_CATEGORIES, SKILL_DOMAINS, normaliseSkillCategory } from '@/lib/skill-taxonomy';
 
 export { formatMonth } from '@/lib/format';
 
@@ -99,52 +100,51 @@ export function getExperience() {
   }));
 }
 
-// Skill categories have drifted over time (e.g. "Specialized" vs "Specialised").
-// Collapse them into a small set of domains so the About page stays scannable.
-const SKILL_DOMAINS = [
-  { name: 'Frontend & Design', match: ['Frontend', 'Styling', 'Ideation & Design', 'Languages'] },
-  { name: 'Mobile', match: ['Mobile'] },
-  { name: 'Backend & APIs', match: ['Backend', 'APIs & Communication', 'Database'] },
-  { name: 'Cloud, DevOps & Security', match: ['Infrastructure (DevOps)', 'Security', 'Version Control & Collaboration'] },
-  { name: 'Quality & Performance', match: ['Testing (QA)', 'Performance & SEO', 'Performance & SEO Optimization'] },
-  { name: 'AI Engineering', match: ['AI & LLM Engineering', 'Development Environment & AI Workflow'] },
-  { name: 'Graphics, 3D & Web3', match: ['Specialized', 'Specialised'] },
-];
-
+// Domain -> category -> entries, in the order defined by the shared taxonomy.
+// Categories not in the taxonomy are collected under "Other" so nothing disappears.
 export function getSkillGroups() {
   const skills = getDatabase()
-    .prepare('SELECT name, category FROM skills ORDER BY proficiency DESC, name ASC')
+    .prepare('SELECT name, category FROM skills ORDER BY proficiency DESC, id ASC')
     .all();
 
-  const groups = SKILL_DOMAINS.map((d) => ({ name: d.name, skills: [] }));
-  const other = { name: 'Other', skills: [] };
-
+  const byCategory = new Map();
   for (const skill of skills) {
-    const index = SKILL_DOMAINS.findIndex((d) => d.match.includes(skill.category));
-    (index === -1 ? other : groups[index]).skills.push(skill.name);
+    const category = normaliseSkillCategory(skill.category);
+    if (!byCategory.has(category)) byCategory.set(category, []);
+    byCategory.get(category).push(parseSkillEntry(skill.name));
   }
 
-  return [...groups, other]
-    .filter((g) => g.skills.length > 0)
-    .map((g) => {
-      const entries = g.skills.map(parseSkillEntry);
-      return {
-        name: g.name,
-        id: slugify(g.name),
-        entries,
-        count: entries.reduce((n, e) => n + e.items.length, 0),
-      };
-    });
+  const toCategory = (name, label) => {
+    const entries = byCategory.get(name);
+    byCategory.delete(name);
+    return { id: slugify(name), name: label || name, entries };
+  };
+
+  const domains = SKILL_DOMAINS.map((domain) => ({
+    id: domain.id,
+    name: domain.name,
+    categories: SKILL_CATEGORIES.filter((c) => c.domain === domain.id && byCategory.has(c.name)).map((c) =>
+      toCategory(c.name, c.label)
+    ),
+  }));
+  domains.push({ id: 'other', name: 'Other', categories: [...byCategory.keys()].map((name) => toCategory(name)) });
+
+  return domains
+    .filter((d) => d.categories.length > 0)
+    .map((d) => ({
+      ...d,
+      count: d.categories.reduce((n, c) => n + c.entries.reduce((m, e) => m + e.items.length, 0), 0),
+    }));
 }
 
 // "Frameworks: Express, Django (Python), .NET (C#)" -> { label, items[] }.
-// Splits on commas that aren't inside parentheses and drops trailing full stops.
+// Splits on commas or semicolons that aren't inside parentheses and drops trailing full stops.
 function parseSkillEntry(text) {
   const split = text.indexOf(':');
   const label = split > 0 ? text.slice(0, split).trim() : null;
   const rest = split > 0 ? text.slice(split + 1) : text;
   const items = rest
-    .split(/,(?![^(]*\))/)
+    .split(/[,;](?![^(]*\))/)
     .map((item) => item.trim().replace(/\.$/, ''))
     .filter(Boolean);
   return { label, items };

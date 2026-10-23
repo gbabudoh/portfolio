@@ -26,6 +26,8 @@ import {
  *          type: text | url | number | month | textarea | select | switch | image
  * columns: [{ label, render(row), className }] — secondary metadata (hidden on mobile)
  * primary(row): { title, subtitle, media? } — the main cell
+ * groupBy: { key, order?, caption?(group) } — render the list in sections by row[key],
+ *          in `order` (unknown groups last); the filter dropdown follows the same order
  */
 export function ResourceManager({
   endpoint,
@@ -37,6 +39,7 @@ export function ResourceManager({
   primary,
   searchKeys = [],
   filter,
+  groupBy,
   defaults = {},
   toForm = (row) => row,
   toPayload = (values) => values,
@@ -84,10 +87,23 @@ export function ResourceManager({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const groupOrder = groupBy?.order;
+  const compareGroups = useCallback(
+    (a, b) => {
+      const rank = (v) => {
+        const i = groupOrder ? groupOrder.indexOf(v) : -1;
+        return i === -1 ? Infinity : i;
+      };
+      return rank(a) - rank(b) || String(a).localeCompare(String(b));
+    },
+    [groupOrder]
+  );
+
   const filterOptions = useMemo(() => {
     if (!filter) return [];
-    return [...new Set(rows.map((r) => r[filter.key]).filter(Boolean))].sort();
-  }, [rows, filter]);
+    const options = [...new Set(rows.map((r) => r[filter.key]).filter(Boolean))];
+    return groupBy?.key === filter.key ? options.sort(compareGroups) : options.sort();
+  }, [rows, filter, groupBy, compareGroups]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -97,6 +113,18 @@ export function ResourceManager({
       return searchKeys.some((key) => String(row[key] ?? '').toLowerCase().includes(q));
     });
   }, [rows, query, filter, filterValue, searchKeys]);
+
+  // [[group, rows[]], ...] in display order; rows keep their `sort` order within a group.
+  const groups = useMemo(() => {
+    if (!groupBy) return null;
+    const map = new Map();
+    for (const row of visible) {
+      const key = row[groupBy.key] || 'Uncategorised';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(row);
+    }
+    return [...map.entries()].sort(([a], [b]) => compareGroups(a, b));
+  }, [visible, groupBy, compareGroups]);
 
   const dirty = JSON.stringify(values) !== JSON.stringify(initial);
 
@@ -161,6 +189,52 @@ export function ResourceManager({
     } finally {
       setSaving(false);
     }
+  }
+
+  function renderRow(row) {
+    const p = primary(row);
+    return (
+      <li key={row.id} className="group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-surface sm:px-5">
+        {p.media !== undefined && (
+          <div className="hidden size-12 shrink-0 overflow-hidden rounded-md border border-border bg-subtle sm:block">
+            {p.media && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={p.media} alt="" className="size-full object-cover object-top" loading="lazy" />
+            )}
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={() => openEditor(row)}
+          className="min-w-0 flex-1 rounded text-left"
+        >
+          <span className="flex items-center gap-2">
+            <span className="truncate text-sm font-medium">{p.title}</span>
+            {p.badge}
+          </span>
+          {p.subtitle && <span className="mt-0.5 block truncate text-xs text-muted">{p.subtitle}</span>}
+        </button>
+        {columns.map((col) => (
+          <div key={col.label} className={cn('hidden shrink-0 text-sm text-muted md:block', col.className)}>
+            {col.render(row)}
+          </div>
+        ))}
+        <div className="flex shrink-0 gap-1">
+          <Button variant="ghost" size="icon-sm" onClick={() => openEditor(row)} aria-label={`Edit ${p.title}`}>
+            <Pencil />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => remove(row)}
+            aria-label={`Delete ${p.title}`}
+            className="hover:bg-danger/10 hover:text-danger"
+          >
+            <Trash2 />
+          </Button>
+        </div>
+      </li>
+    );
   }
 
   async function remove(row) {
@@ -229,54 +303,24 @@ export function ResourceManager({
               )
             }
           />
-        ) : (
-          <ul className="divide-y divide-border">
-            {visible.map((row) => {
-              const p = primary(row);
+        ) : groups ? (
+          <div>
+            {groups.map(([name, items]) => {
+              const caption = groupBy.caption?.(name);
               return (
-                <li key={row.id} className="group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-surface sm:px-5">
-                  {p.media !== undefined && (
-                    <div className="hidden size-12 shrink-0 overflow-hidden rounded-md border border-border bg-subtle sm:block">
-                      {p.media && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.media} alt="" className="size-full object-cover object-top" loading="lazy" />
-                      )}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => openEditor(row)}
-                    className="min-w-0 flex-1 rounded text-left"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="truncate text-sm font-medium">{p.title}</span>
-                      {p.badge}
-                    </span>
-                    {p.subtitle && <span className="mt-0.5 block truncate text-xs text-muted">{p.subtitle}</span>}
-                  </button>
-                  {columns.map((col) => (
-                    <div key={col.label} className={cn('hidden shrink-0 text-sm text-muted md:block', col.className)}>
-                      {col.render(row)}
-                    </div>
-                  ))}
-                  <div className="flex shrink-0 gap-1">
-                    <Button variant="ghost" size="icon-sm" onClick={() => openEditor(row)} aria-label={`Edit ${p.title}`}>
-                      <Pencil />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => remove(row)}
-                      aria-label={`Delete ${p.title}`}
-                      className="hover:bg-danger/10 hover:text-danger"
-                    >
-                      <Trash2 />
-                    </Button>
-                  </div>
-                </li>
+                <section key={name} aria-label={name} className="border-border [&:not(:first-child)]:border-t">
+                  <h3 className="flex items-baseline gap-2 border-b border-border bg-surface px-4 py-2 sm:px-5">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-foreground">{name}</span>
+                    {caption && <span className="truncate text-xs text-muted">{caption}</span>}
+                    <span className="ml-auto font-mono text-xs tabular-nums text-muted">{items.length}</span>
+                  </h3>
+                  <ul className="divide-y divide-border">{items.map(renderRow)}</ul>
+                </section>
               );
             })}
-          </ul>
+          </div>
+        ) : (
+          <ul className="divide-y divide-border">{visible.map(renderRow)}</ul>
         )}
       </Card>
 
