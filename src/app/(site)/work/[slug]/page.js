@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Github } from 'lucide-react';
 import { getAdjacentProject, getProjectBySlug, getProjects } from '@/lib/content';
-import { Badge } from '@/components/ui/badge';
 import { ButtonLink } from '@/components/ui/button';
+import { Markdown } from '@/components/ui/markdown';
 import { ProjectImage, ResultList } from '@/components/site/blocks';
 
 export const revalidate = 3600;
@@ -61,10 +61,7 @@ export default async function CaseStudyPage({ params }) {
         </Link>
 
         <div className="max-w-3xl animate-fade-up space-y-4 sm:space-y-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge>{project.category}</Badge>
-            {project.featured && <Badge tone="accent">Featured</Badge>}
-          </div>
+          <p className="eyebrow">{project.category}</p>
           <h1 className="text-h1">{project.title}</h1>
           {project.headline && <p className="text-pretty text-base text-muted sm:text-lg lg:text-xl">{project.headline}</p>}
           {(project.liveUrl || project.repoUrl) && (
@@ -76,7 +73,7 @@ export default async function CaseStudyPage({ params }) {
                 </ButtonLink>
               )}
               {project.repoUrl && (
-                <ButtonLink href={project.repoUrl} external variant="secondary">
+                <ButtonLink href={project.repoUrl} external variant="soft">
                   <Github />
                   GitHub
                 </ButtonLink>
@@ -86,15 +83,15 @@ export default async function CaseStudyPage({ params }) {
         </div>
       </header>
 
-      {/* 2. Hero image */}
+      {/* 2. Hero image — flat tinted panel so a white screenshot reads as an exhibit, not part of the page */}
       <div className="container mt-2 sm:mt-6">
-        <div className="overflow-hidden rounded-xl border border-border bg-subtle shadow-xs">
+        <div className="rounded-2xl bg-subtle p-2 sm:p-4 lg:p-6">
           <ProjectImage
             src={project.image}
             alt={`${project.title} screenshot`}
             priority
-            sizes="(min-width: 1200px) 1136px, 100vw"
-            className="aspect-[16/9] w-full"
+            sizes="(min-width: 1200px) 1088px, 100vw"
+            className="aspect-[16/9] w-full rounded-lg ring-1 ring-border/70 sm:rounded-xl"
           />
         </div>
       </div>
@@ -106,7 +103,7 @@ export default async function CaseStudyPage({ params }) {
           <ResultList
             results={results}
             size="lg"
-            className={`grid grid-cols-2 gap-x-6 gap-y-8 rounded-xl border border-border bg-surface px-6 py-7 sm:px-8 ${
+            className={`grid grid-cols-2 gap-x-6 gap-y-8 rounded-2xl bg-subtle px-6 py-7 sm:px-8 ${
               results.length >= 3 ? 'lg:grid-cols-4' : ''
             } ${results.length === 3 ? 'sm:grid-cols-3' : ''}`}
           />
@@ -147,6 +144,13 @@ export default async function CaseStudyPage({ params }) {
           )
         )}
 
+        {/* 5b. How it was built — optional long-form decisions, trade-offs and challenges */}
+        {project.caseStudy && (
+          <CaseSection id="how-it-was-built" title="How it was built">
+            <Markdown>{project.caseStudy}</Markdown>
+          </CaseSection>
+        )}
+
         {/* 6. My role */}
         {project.role && (
           <CaseSection id="role" title="My role">
@@ -159,10 +163,8 @@ export default async function CaseStudyPage({ params }) {
           <CaseSection id="stack" title="Stack">
             <ul className="flex flex-wrap gap-2">
               {project.stack.map((tech) => (
-                <li key={tech}>
-                  <Badge tone="outline" className="px-2.5 py-1 text-sm">
-                    {tech}
-                  </Badge>
+                <li key={tech} className="rounded-md bg-subtle px-2.5 py-1 text-sm font-medium text-foreground">
+                  {tech}
                 </li>
               ))}
             </ul>
@@ -170,7 +172,7 @@ export default async function CaseStudyPage({ params }) {
         )}
 
         {/* 8. Call to action */}
-        <div className="mt-6 flex flex-col items-start justify-between gap-5 rounded-xl border border-border bg-surface p-6 sm:mt-10 sm:flex-row sm:items-center sm:p-8">
+        <div className="mt-6 flex flex-col items-start justify-between gap-5 rounded-2xl bg-subtle p-6 sm:mt-10 sm:flex-row sm:items-center sm:p-8">
           <div className="space-y-1">
             <p className="text-lg font-semibold tracking-tight sm:text-xl">Need something like this?</p>
             <p className="text-sm text-muted sm:text-base">Tell me what you’re building and I’ll show you how I’d approach it.</p>

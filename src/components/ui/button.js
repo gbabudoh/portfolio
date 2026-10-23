@@ -9,6 +9,8 @@ const base =
 const variants = {
   primary: 'bg-accent text-accent-foreground hover:bg-accent/90',
   secondary: 'border border-border bg-background text-foreground hover:bg-subtle',
+  // Flat-face secondary: solid tint, no outline or shadow.
+  soft: 'bg-subtle text-foreground hover:bg-border/70',
   ghost: 'text-muted hover:bg-subtle hover:text-foreground',
   danger: 'bg-danger text-white hover:bg-danger/90 dark:text-background',
   link: 'text-accent-text underline-offset-4 hover:underline px-0 h-auto',
