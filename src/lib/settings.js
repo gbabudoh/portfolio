@@ -25,6 +25,7 @@ export const INTEGRATIONS = {
 };
 
 const DEFAULTS = {
+  ga_measurement_id: 'G-C54P1GWYQF',
   clarity_project_id: 'ytkd0tb8bx',
 };
 
