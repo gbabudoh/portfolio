@@ -17,16 +17,16 @@ export function WorkBrowser({ projects }) {
 
   return (
     <>
-      {/* Category filter bar with mobile scroll affordance */}
+      {/* Category filter: one swipeable row on phones; wraps from sm up so every pill is fully visible */}
       <div className="relative mb-6 sm:mb-8">
         {/* Right fade mask to indicate more scrollable categories on small screens */}
-        <div 
+        <div
           className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-8 bg-gradient-to-l from-background to-transparent sm:hidden"
-          aria-hidden="true" 
+          aria-hidden="true"
         />
 
-        <div className="-mx-5 overflow-x-auto px-5 scrollbar-hide sm:mx-0 sm:px-0">
-          <div role="group" aria-label="Filter by category" className="flex w-max items-center gap-2 py-1">
+        <div className="-mx-5 overflow-x-auto px-5 scrollbar-hide sm:mx-0 sm:overflow-visible sm:px-0">
+          <div role="group" aria-label="Filter by category" className="flex w-max items-center gap-2 py-1 sm:w-auto sm:flex-wrap">
             {categories.map(([name, count]) => {
               const active = name === category;
               return (
@@ -38,7 +38,7 @@ export function WorkBrowser({ projects }) {
                   className={cn(
                     'inline-flex min-h-[42px] items-center gap-2 whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20',
                     active
-                      ? 'border-foreground bg-foreground text-background shadow-xs'
+                      ? 'border-foreground bg-foreground text-background'
                       : 'border-border bg-background text-muted hover:border-foreground/30 hover:text-foreground'
                   )}
                 >
