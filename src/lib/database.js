@@ -73,6 +73,26 @@ function createTables() {
     // Column already exists, ignore error
   }
 
+  // Case-study fields (see src/lib/project-model.js). built, results and
+  // technologies hold JSON arrays. Existing projects stay published.
+  const projectColumns = [
+    'problem TEXT',
+    'built TEXT',
+    'results TEXT',
+    'role TEXT',
+    'slug TEXT',
+    "status TEXT NOT NULL DEFAULT 'published'",
+    'display_order INTEGER NOT NULL DEFAULT 0',
+  ];
+  for (const column of projectColumns) {
+    try {
+      db.exec(`ALTER TABLE projects ADD COLUMN ${column}`);
+    } catch (e) {
+      // Column already exists
+    }
+  }
+  db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_slug ON projects(slug) WHERE slug IS NOT NULL AND slug != ''");
+
   // Work experience table
   db.exec(`
     CREATE TABLE IF NOT EXISTS experience (

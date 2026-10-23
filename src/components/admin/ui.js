@@ -183,7 +183,9 @@ export async function api(url, { method = 'GET', body } = {}) {
   }
   const data = await res.json().catch(() => ({}));
   if (!res.ok || data.success === false) {
-    throw new Error(data.error || data.message || 'Request failed');
+    const error = new Error(data.error || data.message || 'Request failed');
+    if (data.errors) error.fields = data.errors; // Per-field messages from server validation
+    throw error;
   }
   return data;
 }

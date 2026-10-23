@@ -1,9 +1,11 @@
 // Server-side read model for the public site. Pages call these directly
 // (React Server Components) instead of fetching our own API over HTTP.
 import { getDatabase } from '@/lib/database';
+import { parseResults, parseStringList, slugify } from '@/lib/project-model';
 import { SKILL_CATEGORIES, SKILL_DOMAINS, normaliseSkillCategory } from '@/lib/skill-taxonomy';
 
 export { formatMonth } from '@/lib/format';
+export { slugify };
 
 export function splitList(value) {
   if (!value) return [];
@@ -13,42 +15,46 @@ export function splitList(value) {
     .filter(Boolean);
 }
 
-export function slugify(text) {
-  return String(text)
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 function toProject(row) {
+  const built = parseStringList(row.built);
   return {
     id: row.id,
-    slug: slugify(row.title) || String(row.id),
+    slug: row.slug || slugify(row.title) || String(row.id),
     title: row.title,
-    summary: row.description,
-    body: row.long_description || '',
+    headline: row.description || '',
+    problem: row.problem || '',
+    built,
+    // Legacy Overview paragraphs, only used while "What I built" is still empty.
+    overview: built.length
+      ? []
+      : String(row.long_description || '')
+          .split(/\r?\n\s*\r?\n/)
+          .map((p) => p.trim())
+          .filter(Boolean),
+    results: parseResults(row.results),
+    role: row.role || '',
     image: row.image_url || null,
     liveUrl: row.live_url || null,
     repoUrl: row.github_url || null,
     category: row.category,
     featured: Boolean(row.featured),
-    stack: splitList(row.technologies),
-    practices: splitList(row.technical_skills),
+    stack: parseStringList(row.technologies),
     createdAt: row.created_at,
   };
 }
 
+// Published projects in the order set in the admin.
 export function getProjects() {
   const rows = getDatabase()
-    .prepare('SELECT * FROM projects ORDER BY featured DESC, created_at DESC, id DESC')
+    .prepare("SELECT * FROM projects WHERE status = 'published' ORDER BY display_order ASC, id ASC")
     .all();
   return rows.map(toProject);
 }
 
+// Featured projects first (in admin order), topped up with the rest if there are too few.
 export function getFeaturedProjects(limit = 3) {
-  return getProjects().slice(0, limit);
+  const projects = getProjects();
+  return [...projects.filter((p) => p.featured), ...projects.filter((p) => !p.featured)].slice(0, limit);
 }
 
 export function getProjectBySlug(slug) {

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, ImageOff } from 'lucide-react';
+import { ArrowRight, ImageOff } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Badge } from '@/components/ui/badge';
 
@@ -91,19 +91,34 @@ export function ProjectImage({ src, alt, priority, sizes, className }) {
   );
 }
 
+// Big-number proof, used on cards and the case-study results strip.
+// Label comes first in the DOM (dt before dd) but is shown under the value.
+export function ResultList({ results, size = 'md', className }) {
+  return (
+    <dl className={className}>
+      {results.map((r) => (
+        <div key={`${r.value}-${r.label}`} className="flex min-w-0 flex-col-reverse gap-1">
+          <dt className={cn('text-muted', size === 'lg' ? 'text-sm' : 'text-xs leading-snug')}>{r.label}</dt>
+          <dd
+            className={cn(
+              'font-semibold tracking-tight tabular-nums text-foreground',
+              size === 'lg' ? 'text-3xl sm:text-4xl' : 'text-2xl'
+            )}
+          >
+            {r.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+const CARD_STACK_LIMIT = 4;
+
 export function ProjectCard({ project, priority = false }) {
+  const extraStack = project.stack.length - CARD_STACK_LIMIT;
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-xs transition-all duration-300 hover:border-foreground/30 hover:shadow-md">
-      {/* Mini browser mock header */}
-      <div className="flex items-center gap-1.5 border-b border-border/60 bg-subtle/70 px-3.5 py-2">
-        <span className="size-1.5 rounded-full bg-border" />
-        <span className="size-1.5 rounded-full bg-border" />
-        <span className="size-1.5 rounded-full bg-border" />
-        <span className="ml-1.5 truncate font-mono text-[10px] text-muted">
-          {project.slug}.app
-        </span>
-      </div>
-
       <ProjectImage
         src={project.image}
         alt=""
@@ -123,29 +138,36 @@ export function ProjectCard({ project, priority = false }) {
             {project.title}
           </Link>
         </h3>
-        <p className="line-clamp-2 text-sm text-muted">{project.summary}</p>
+        {project.headline && <p className="line-clamp-2 text-sm text-muted">{project.headline}</p>}
+
+        {project.results.length > 0 && (
+          <ResultList
+            results={project.results.slice(0, 2)}
+            className="grid grid-cols-2 gap-4 border-y border-border/70 py-3.5"
+          />
+        )}
+
         {project.stack.length > 0 && (
-          <ul className="mt-auto flex flex-wrap gap-1.5 pt-2" aria-label="Technologies">
-            {project.stack.slice(0, 3).map((tech) => (
+          <ul className="mt-auto flex flex-wrap gap-1.5 pt-1" aria-label="Technologies">
+            {project.stack.slice(0, CARD_STACK_LIMIT).map((tech) => (
               <li key={tech}>
                 <Badge tone="outline">{tech}</Badge>
               </li>
             ))}
-            {project.stack.length > 3 && (
+            {extraStack > 0 && (
               <li>
-                <Badge tone="outline">+{project.stack.length - 3}</Badge>
+                <Badge tone="outline" aria-label={`and ${extraStack} more`}>+{extraStack}</Badge>
               </li>
             )}
           </ul>
         )}
 
-        {/* Mobile-first explicit touch link affordance */}
-        <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-3 text-xs font-medium">
+        {/* Explicit touch affordance; the whole card is clickable via the title link */}
+        <div className="mt-2 flex items-center border-t border-border/60 pt-3 text-xs font-medium">
           <span className="inline-flex items-center gap-1 text-foreground transition-colors group-hover:text-accent-text">
             Read case study
             <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
           </span>
-          <span className="font-mono text-[11px] text-muted">Production</span>
         </div>
       </div>
     </article>

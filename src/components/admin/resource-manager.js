@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Loader2, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/button';
 import { Field, Input, Select, Switch, Textarea } from '@/components/ui/field';
@@ -22,8 +22,12 @@ import {
  * Config-driven list + create/edit/delete screen used by every content type,
  * so all admin sections share the same layout, behaviour and feedback.
  *
- * fields:  [{ name, label, type, required, options, hint, placeholder, span, showIf }]
+ * fields:  [{ name, label, type, required, options, hint, placeholder, span, showIf, maxLength }]
  *          type: text | url | number | month | textarea | select | switch | image
+ *                | section (heading only) | list (string[]) | pairs (object[]) | tags (string[])
+ *          required may be a function of the current values; maxLength adds a live counter
+ *          list/pairs/tags: maxItems, addLabel; pairs: keys [{ name, label, placeholder, maxLength }]
+ * reorder: { endpoint } — ↑ ↓ buttons that POST { ids } in the new order (hidden while searching/filtering)
  * columns: [{ label, render(row), className }] — secondary metadata (hidden on mobile)
  * primary(row): { title, subtitle, media? } — the main cell
  * groupBy: { key, order?, caption?(group) } — render the list in sections by row[key],
@@ -40,6 +44,7 @@ export function ResourceManager({
   searchKeys = [],
   filter,
   groupBy,
+  reorder,
   defaults = {},
   toForm = (row) => row,
   toPayload = (values) => values,
@@ -156,10 +161,18 @@ export function ResourceManager({
   function validate() {
     const next = {};
     for (const field of fields) {
+      if (field.type === 'section') continue;
       if (field.showIf && !field.showIf(values)) continue;
       const v = values[field.name];
-      if (field.required && (v === undefined || v === null || String(v).trim() === '')) {
-        next[field.name] = `${field.label} is required`;
+      const required = typeof field.required === 'function' ? field.required(values) : field.required;
+      const empty = Array.isArray(v)
+        ? v.filter((item) => (typeof item === 'object' ? Object.values(item).some((x) => String(x ?? '').trim()) : String(item).trim())).length === 0
+        : v === undefined || v === null || String(v).trim() === '';
+      if (required && empty) {
+        next[field.name] = field.requiredMessage || `${field.label} is required`;
+      }
+      if (field.maxLength && typeof v === 'string' && v.trim().length > field.maxLength) {
+        next[field.name] = `Keep this under ${field.maxLength} characters`;
       }
       if (field.type === 'url' && v && !/^https?:\/\//i.test(v)) {
         next[field.name] = 'Must start with http:// or https://';
@@ -185,9 +198,28 @@ export function ResourceManager({
       setEditing(null);
       load();
     } catch (err) {
+      if (err.fields) setErrors(err.fields);
       toast(err.message, 'error');
     } finally {
       setSaving(false);
+    }
+  }
+
+  // Reordering works on the full, unfiltered list so the saved order is unambiguous.
+  const canReorder = Boolean(reorder) && !query.trim() && !filterValue && !groupBy;
+
+  async function move(row, delta) {
+    const from = rows.findIndex((r) => r.id === row.id);
+    const to = from + delta;
+    if (from === -1 || to < 0 || to >= rows.length) return;
+    const nextRows = [...rows];
+    [nextRows[from], nextRows[to]] = [nextRows[to], nextRows[from]];
+    setRows(nextRows);
+    try {
+      await api(reorder.endpoint, { method: 'POST', body: { ids: nextRows.map((r) => r.id) } });
+    } catch (err) {
+      toast(err.message, 'error');
+      load();
     }
   }
 
@@ -220,6 +252,28 @@ export function ResourceManager({
           </div>
         ))}
         <div className="flex shrink-0 gap-1">
+          {canReorder && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => move(row, -1)}
+                disabled={rows[0]?.id === row.id}
+                aria-label={`Move ${p.title} up`}
+              >
+                <ArrowUp />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => move(row, 1)}
+                disabled={rows[rows.length - 1]?.id === row.id}
+                aria-label={`Move ${p.title} down`}
+              >
+                <ArrowDown />
+              </Button>
+            </>
+          )}
           <Button variant="ghost" size="icon-sm" onClick={() => openEditor(row)} aria-label={`Edit ${p.title}`}>
             <Pencil />
           </Button>
@@ -368,6 +422,15 @@ function FormField({ field, values, error, onChange }) {
     placeholder: field.placeholder,
   };
 
+  if (field.type === 'section') {
+    return (
+      <div className="border-t border-border pt-5 first:border-t-0 first:pt-0 sm:col-span-2">
+        <p className="text-sm font-semibold">{field.label}</p>
+        {field.hint && <p className="mt-0.5 text-xs text-muted">{field.hint}</p>}
+      </div>
+    );
+  }
+
   if (field.type === 'switch') {
     return (
       <div className={span}>
@@ -398,7 +461,13 @@ function FormField({ field, values, error, onChange }) {
   }
 
   let control;
-  if (field.type === 'textarea') {
+  if (field.type === 'list') {
+    control = <ListInput id={id} field={field} value={value} invalid={Boolean(error)} onChange={(v) => onChange(field.name, v)} />;
+  } else if (field.type === 'pairs') {
+    control = <PairsInput id={id} field={field} value={value} invalid={Boolean(error)} onChange={(v) => onChange(field.name, v)} />;
+  } else if (field.type === 'tags') {
+    control = <TagsInput id={id} field={field} value={value} invalid={Boolean(error)} onChange={(v) => onChange(field.name, v)} />;
+  } else if (field.type === 'textarea') {
     control = <Textarea {...common} rows={field.rows || 4} value={value} onChange={(e) => onChange(field.name, e.target.value)} />;
   } else if (field.type === 'select') {
     control = (
@@ -428,17 +497,162 @@ function FormField({ field, values, error, onChange }) {
     );
   }
 
+  const required = typeof field.required === 'function' ? field.required(values) : field.required;
+  const length = typeof value === 'string' ? value.trim().length : 0;
+
   return (
     <div className={cn('space-y-1.5', span)}>
-      <label htmlFor={id} className="block text-sm font-medium">
-        {field.label}
-        {field.required && <span className="ml-0.5 text-danger" aria-hidden="true">*</span>}
-      </label>
+      <div className="flex items-baseline justify-between gap-3">
+        <label htmlFor={id} className="block text-sm font-medium">
+          {field.label}
+          {required && <span className="ml-0.5 text-danger" aria-hidden="true">*</span>}
+        </label>
+        {field.maxLength && (
+          <span
+            className={cn('font-mono text-xs tabular-nums', length > field.maxLength ? 'text-danger' : 'text-muted')}
+            aria-live="polite"
+          >
+            {length}/{field.maxLength}
+          </span>
+        )}
+      </div>
       {control}
       {(error || field.hint) && (
         <p id={`${id}-help`} className={cn('text-xs', error ? 'text-danger' : 'text-muted')}>
           {error || field.hint}
         </p>
+      )}
+    </div>
+  );
+}
+
+// Repeatable single-line inputs (string[]). Always shows at least one row.
+function ListInput({ id, field, value, invalid, onChange }) {
+  const items = Array.isArray(value) && value.length ? value : [''];
+  const max = field.maxItems || Infinity;
+  const update = (index, text) => onChange(items.map((item, i) => (i === index ? text : item)));
+  const remove = (index) => onChange(items.filter((_, i) => i !== index));
+
+  return (
+    <div className="space-y-2">
+      {items.map((item, index) => (
+        <div key={index} className="flex gap-2">
+          <Input
+            id={index === 0 ? id : `${id}-${index}`}
+            value={item}
+            onChange={(e) => update(index, e.target.value)}
+            placeholder={field.placeholder}
+            aria-label={`${field.label} ${index + 1}`}
+            aria-invalid={invalid ? 'true' : undefined}
+            maxLength={field.itemMaxLength}
+          />
+          <Button variant="ghost" size="icon" onClick={() => remove(index)} aria-label={`Remove item ${index + 1}`} disabled={items.length === 1 && !item}>
+            <X />
+          </Button>
+        </div>
+      ))}
+      {items.length < max && (
+        <Button variant="secondary" size="sm" onClick={() => onChange([...items, ''])}>
+          <Plus />
+          {field.addLabel || 'Add item'}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+// Repeatable rows of several inputs (object[]), e.g. { value, label } results.
+function PairsInput({ id, field, value, invalid, onChange }) {
+  const blank = Object.fromEntries(field.keys.map((k) => [k.name, '']));
+  const items = Array.isArray(value) && value.length ? value : [blank];
+  const max = field.maxItems || Infinity;
+  const update = (index, key, text) => onChange(items.map((item, i) => (i === index ? { ...item, [key]: text } : item)));
+  const remove = (index) => onChange(items.filter((_, i) => i !== index));
+  const isBlank = (item) => field.keys.every((k) => !String(item[k.name] ?? '').trim());
+
+  return (
+    <div className="space-y-2">
+      {items.map((item, index) => (
+        <div key={index} className="flex gap-2">
+          {field.keys.map((key, k) => (
+            <Input
+              key={key.name}
+              id={index === 0 && k === 0 ? id : undefined}
+              value={item[key.name] ?? ''}
+              onChange={(e) => update(index, key.name, e.target.value)}
+              placeholder={key.placeholder}
+              aria-label={`${key.label} ${index + 1}`}
+              aria-invalid={invalid ? 'true' : undefined}
+              maxLength={key.maxLength}
+              className={key.className}
+            />
+          ))}
+          <Button variant="ghost" size="icon" onClick={() => remove(index)} aria-label={`Remove row ${index + 1}`} disabled={items.length === 1 && isBlank(item)}>
+            <X />
+          </Button>
+        </div>
+      ))}
+      {items.length < max && (
+        <Button variant="secondary" size="sm" onClick={() => onChange([...items, blank])}>
+          <Plus />
+          {field.addLabel || 'Add row'}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+// Chips added with Enter or a comma, removed with their × button (string[]).
+function TagsInput({ id, field, value, invalid, onChange }) {
+  const [draft, setDraft] = useState('');
+  const tags = Array.isArray(value) ? value : [];
+  const max = field.maxItems || Infinity;
+
+  function commit(text = draft) {
+    const next = text
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => t && !tags.some((existing) => existing.toLowerCase() === t.toLowerCase()));
+    if (next.length) onChange([...tags, ...next].slice(0, max));
+    setDraft('');
+  }
+
+  return (
+    <div className="space-y-2">
+      {tags.length > 0 && (
+        <ul className="flex flex-wrap gap-1.5">
+          {tags.map((tag) => (
+            <li key={tag} className="inline-flex items-center gap-1 rounded-md border border-border bg-subtle py-0.5 pl-2 pr-0.5 text-xs font-medium">
+              {tag}
+              <button
+                type="button"
+                onClick={() => onChange(tags.filter((t) => t !== tag))}
+                className="grid size-5 place-items-center rounded text-muted hover:bg-background hover:text-foreground"
+                aria-label={`Remove ${tag}`}
+              >
+                <X className="size-3" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {tags.length < max && (
+        <Input
+          id={id}
+          value={draft}
+          onChange={(e) => (e.target.value.includes(',') ? commit(e.target.value) : setDraft(e.target.value))}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              commit();
+            } else if (e.key === 'Backspace' && !draft && tags.length) {
+              onChange(tags.slice(0, -1));
+            }
+          }}
+          onBlur={() => draft.trim() && commit()}
+          placeholder={field.placeholder}
+          aria-invalid={invalid ? 'true' : undefined}
+        />
       )}
     </div>
   );
