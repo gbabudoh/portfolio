@@ -6,7 +6,7 @@ export const site = {
   role: 'Full-Stack Engineer & Solution Architect',
   tagline:
     'I design and build scalable web, mobile and commerce platforms — pairing deep full-stack engineering with an AI-native workflow to ship faster without cutting corners.',
-  url: 'https://godwinportfolio.com',
+  url: 'https://www.godwinbabudoh.com',
   email: 'gbabudoh@gmail.com',
   phone: { display: '+44 (0) 7814483083', href: 'tel:+447814483083' },
   location: 'United Kingdom · Remote',
