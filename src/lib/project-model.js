@@ -7,6 +7,7 @@ export const PROJECT_LIMITS = {
   headline: 120,
   problem: 300,
   role: 80,
+  caseStudy: 4000,
   builtItem: 160,
   builtMax: 5,
   resultValue: 10,
@@ -118,6 +119,7 @@ export function validateProject(input) {
     description: text('description'),
     problem: text('problem'),
     role: text('role'),
+    case_study: text('case_study'),
     long_description: text('long_description'),
     image_url: text('image_url'),
     image_public_id: text('image_public_id'),
@@ -137,7 +139,7 @@ export function validateProject(input) {
     errors.slug = 'Use lowercase letters, numbers and single hyphens, e.g. ese-lounge';
   }
 
-  for (const [key, max] of [['description', L.headline], ['problem', L.problem], ['role', L.role]]) {
+  for (const [key, max] of [['description', L.headline], ['problem', L.problem], ['role', L.role], ['case_study', L.caseStudy]]) {
     if (data[key].length > max) errors[key] = `Keep this under ${max} characters`;
   }
   for (const key of ['live_url', 'github_url']) {

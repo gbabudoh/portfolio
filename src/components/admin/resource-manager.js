@@ -6,6 +6,7 @@ import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/button';
 import { Field, Input, Select, Switch, Textarea } from '@/components/ui/field';
 import { ImageUpload } from '@/components/admin/image-upload';
+import { Markdown } from '@/components/ui/markdown';
 import {
   AdminPageHeader,
   Card,
@@ -24,7 +25,7 @@ import {
  *
  * fields:  [{ name, label, type, required, options, hint, placeholder, span, showIf, maxLength }]
  *          type: text | url | number | month | textarea | select | switch | image
- *                | section (heading only) | list (string[]) | pairs (object[]) | tags (string[])
+ *                | section (heading only) | list (string[]) | pairs (object[]) | tags (string[]) | markdown
  *          required may be a function of the current values; maxLength adds a live counter
  *          list/pairs/tags: maxItems, addLabel; pairs: keys [{ name, label, placeholder, maxLength }]
  * reorder: { endpoint } — ↑ ↓ buttons that POST { ids } in the new order (hidden while searching/filtering)
@@ -467,6 +468,8 @@ function FormField({ field, values, error, onChange }) {
     control = <PairsInput id={id} field={field} value={value} invalid={Boolean(error)} onChange={(v) => onChange(field.name, v)} />;
   } else if (field.type === 'tags') {
     control = <TagsInput id={id} field={field} value={value} invalid={Boolean(error)} onChange={(v) => onChange(field.name, v)} />;
+  } else if (field.type === 'markdown') {
+    control = <MarkdownInput common={common} field={field} value={value} onChange={(v) => onChange(field.name, v)} />;
   } else if (field.type === 'textarea') {
     control = <Textarea {...common} rows={field.rows || 4} value={value} onChange={(e) => onChange(field.name, e.target.value)} />;
   } else if (field.type === 'select') {
@@ -597,6 +600,40 @@ function PairsInput({ id, field, value, invalid, onChange }) {
           <Plus />
           {field.addLabel || 'Add row'}
         </Button>
+      )}
+    </div>
+  );
+}
+
+// Markdown textarea with a Write / Preview toggle; preview uses the site's renderer.
+function MarkdownInput({ common, field, value, onChange }) {
+  const [preview, setPreview] = useState(false);
+  const words = value.trim() ? value.trim().split(/\s+/).length : 0;
+  const tab = (active) =>
+    cn(
+      'rounded px-2.5 py-1 text-xs font-medium transition-colors',
+      active ? 'bg-background text-foreground shadow-xs' : 'text-muted hover:text-foreground'
+    );
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <div className="inline-flex rounded-md bg-subtle p-0.5" role="group" aria-label="Editor mode">
+          <button type="button" className={tab(!preview)} aria-pressed={!preview} onClick={() => setPreview(false)}>
+            Write
+          </button>
+          <button type="button" className={tab(preview)} aria-pressed={preview} onClick={() => setPreview(true)}>
+            Preview
+          </button>
+        </div>
+        <span className="font-mono text-xs tabular-nums text-muted">{words} words</span>
+      </div>
+      {preview ? (
+        <div className="min-h-40 rounded-md border border-border bg-background p-4">
+          {value.trim() ? <Markdown>{value}</Markdown> : <p className="text-sm text-muted">Nothing to preview yet.</p>}
+        </div>
+      ) : (
+        <Textarea {...common} rows={field.rows || 12} value={value} onChange={(e) => onChange(e.target.value)} className="font-mono text-[13px]" />
       )}
     </div>
   );

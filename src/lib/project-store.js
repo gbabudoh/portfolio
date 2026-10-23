@@ -4,7 +4,7 @@ import { getDatabase } from '@/lib/database';
 import { slugify, validateProject } from '@/lib/project-model';
 
 const COLUMNS = [
-  'title', 'slug', 'category', 'status', 'featured', 'description', 'problem', 'role', 'built', 'results',
+  'title', 'slug', 'category', 'status', 'featured', 'description', 'problem', 'role', 'case_study', 'built', 'results',
   'technologies', 'long_description', 'image_url', 'image_public_id', 'live_url', 'github_url',
 ];
 

@@ -84,6 +84,14 @@ const FIELDS = [
     placeholder: 'Multi-vendor checkout with Stripe Connect payouts',
     hint: `3–${L.builtMax} short bullets.`,
   },
+  {
+    name: 'case_study',
+    type: 'markdown',
+    label: 'How it was built (optional)',
+    maxLength: L.caseStudy,
+    placeholder: '### Key decisions\n\n**SQLite over a hosted database.** …\n\n### Challenges\n\n…\n\n### Outcome\n\n…',
+    hint: 'Markdown. Shown after “What I built”. Aim for 3 short sections (e.g. Key decisions, Challenges, Outcome), 250–400 words.',
+  },
   { name: 'role', type: 'text', label: 'My role', maxLength: L.role, placeholder: 'Sole engineer — design, build and deployment' },
   {
     name: 'technologies',
@@ -111,7 +119,7 @@ const FIELDS = [
 
 const DEFAULTS = {
   title: '', slug: '', category: '', status: 'draft', featured: false,
-  description: '', problem: '', results: [], built: [], role: '', technologies: [],
+  description: '', problem: '', results: [], built: [], case_study: '', role: '', technologies: [],
   live_url: '', github_url: '', image_url: '', image_public_id: '', long_description: '',
 };
 
@@ -152,6 +160,7 @@ export default function ProjectsAdminPage() {
         description: row.description || '',
         problem: row.problem || '',
         role: row.role || '',
+        case_study: row.case_study || '',
         long_description: row.long_description || '',
         results: parseResults(row.results),
         built: parseStringList(row.built),

@@ -32,6 +32,7 @@ function toProject(row) {
           .map((p) => p.trim())
           .filter(Boolean),
     results: parseResults(row.results),
+    caseStudy: row.case_study || '',
     role: row.role || '',
     image: row.image_url || null,
     liveUrl: row.live_url || null,

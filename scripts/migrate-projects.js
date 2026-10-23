@@ -29,6 +29,7 @@ const NEW_COLUMNS = [
   'built TEXT',
   'results TEXT',
   'role TEXT',
+  'case_study TEXT',
   'slug TEXT',
   "status TEXT NOT NULL DEFAULT 'published'",
   'display_order INTEGER NOT NULL DEFAULT 0',
