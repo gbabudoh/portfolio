@@ -1,36 +1,57 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import cloudinary from '@/lib/cloudinary';
+
+// Admin only — enforced by middleware (/api/cloudinary is not in the public allow-list).
+
+const MAX_BYTES = 10 * 1024 * 1024;
+const FOLDER_PATTERN = /^portfolio(\/[a-z0-9_-]+)*$/;
+
+// Identify the image by its leading bytes, not the filename or the browser-supplied MIME type.
+function isImage(buffer) {
+  const ascii = (start, end) => buffer.subarray(start, end).toString('latin1');
+  if (buffer.length < 12) return false;
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return true; // JPEG
+  if (ascii(0, 8) === '\x89PNG\r\n\x1a\n') return true; // PNG
+  if (ascii(0, 6) === 'GIF87a' || ascii(0, 6) === 'GIF89a') return true; // GIF
+  if (ascii(0, 4) === 'RIFF' && ascii(8, 12) === 'WEBP') return true; // WebP
+  if (ascii(4, 8) === 'ftyp' && ['avif', 'avis'].includes(ascii(8, 12))) return true; // AVIF
+  return false;
+}
 
 export async function POST(request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file');
     const folder = formData.get('folder') || 'portfolio';
-    
-    if (!file) {
+
+    if (!file || typeof file === 'string') {
+      return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
+    }
+    if (file.size > MAX_BYTES) {
+      return NextResponse.json({ success: false, error: 'Images must be smaller than 10 MB.' }, { status: 400 });
+    }
+    if (typeof folder !== 'string' || !FOLDER_PATTERN.test(folder)) {
+      return NextResponse.json({ success: false, error: 'Invalid upload folder.' }, { status: 400 });
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    if (!isImage(buffer)) {
       return NextResponse.json(
-        { success: false, error: 'No file provided' },
+        { success: false, error: 'Please upload a JPEG, PNG, GIF, WebP or AVIF image.' },
         { status: 400 }
       );
     }
 
-    // Convert file to buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Upload to Cloudinary
     const result = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         {
-          folder: folder,
-          resource_type: 'auto',
-          quality: 'auto',
-          fetch_format: 'auto',
+          folder,
+          resource_type: 'image',
           transformation: [
             { width: 1920, height: 1080, crop: 'limit' }, // Max dimensions
             { quality: 'auto' },
-            { fetch_format: 'auto' }
-          ]
+            { fetch_format: 'auto' },
+          ],
         },
         (error, result) => {
           if (error) reject(error);
@@ -47,45 +68,11 @@ export async function POST(request) {
         width: result.width,
         height: result.height,
         format: result.format,
-        bytes: result.bytes
-      }
+        bytes: result.bytes,
+      },
     });
-
   } catch (error) {
     console.error('Cloudinary upload error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Upload failed' },
-      { status: 500 }
-    );
-  }
-}
-
-// Get upload widget signature for client-side uploads
-export async function GET() {
-  try {
-    const timestamp = Math.round(new Date().getTime() / 1000);
-    const signature = cloudinary.utils.api_sign_request(
-      {
-        timestamp: timestamp,
-        folder: 'portfolio'
-      },
-      process.env.CLOUDINARY_API_SECRET
-    );
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        signature,
-        timestamp,
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY
-      }
-    });
-  } catch (error) {
-    console.error('Signature generation error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to generate signature' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Upload failed' }, { status: 500 });
   }
 }
